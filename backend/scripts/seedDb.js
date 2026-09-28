@@ -7,7 +7,7 @@
 // Safe to run multiple times — existing product names are skipped.
 // ════════════════════════════════════════════════════════════════
 
-const { Database } = require('node-sqlite3-wasm');
+const Database = require('better-sqlite3');
 const path         = require('path');
 const dotenv       = require('dotenv');
 
@@ -43,9 +43,12 @@ function seed() {
   console.log('  ╚══════════════════════════════════════╝');
 
   const dbPath = path.resolve(__dirname, '..', process.env.DB_PATH || './novacart.db');
+  if (process.env.DATABASE_URL || process.env.NODE_ENV === 'production') {
+    throw new Error('The sample seeder is SQLite-local and refuses to run when DATABASE_URL is configured.');
+  }
+
   const db = new Database(dbPath);
 
-  // In node-sqlite3-wasm, parameters are passed as arrays
   const checkStmt  = db.prepare('SELECT id FROM products WHERE name = ?');
   const insertStmt = db.prepare(
     'INSERT INTO products (name, description, price, image_url, category, stock) VALUES (?, ?, ?, ?, ?, ?)'
@@ -55,19 +58,19 @@ function seed() {
   console.log('');
 
   for (const p of PRODUCTS) {
-    const exists = checkStmt.get([p.name]);
+    const exists = checkStmt.get(p.name);
     if (exists) {
       console.log(`   ⏭️  Skipped  : ${p.name}`);
       skipped++;
     } else {
-      const info = insertStmt.run([p.name, p.description, p.price, p.image_url, p.category, p.stock]);
+      const info = insertStmt.run(p.name, p.description, p.price, p.image_url, p.category, p.stock);
       console.log(`   ✅ Inserted : [${p.category}] ${p.name} — $${p.price} (id: ${info.lastInsertRowid})`);
       inserted++;
     }
   }
 
-  const total  = db.prepare('SELECT COUNT(*) AS total FROM products').get([]).total;
-  const byCat  = db.prepare('SELECT category, COUNT(*) AS count FROM products GROUP BY category ORDER BY category').all([]);
+  const total  = db.prepare('SELECT COUNT(*) AS total FROM products').get().total;
+  const byCat  = db.prepare('SELECT category, COUNT(*) AS count FROM products GROUP BY category ORDER BY category').all();
 
   console.log('\n  ─────────────────────────────────────');
   console.log(`  Inserted : ${inserted}   Skipped: ${skipped}`);

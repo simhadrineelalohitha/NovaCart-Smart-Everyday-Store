@@ -1,52 +1,100 @@
-// ════════════════════════════════════════════════════════════════
-// config/db.js — SQLite Database (better-sqlite3)
-// ════════════════════════════════════════════════════════════════
-//
-// better-sqlite3 provides synchronous SQLite access using native
-// file locking, which supports serving API requests from this app.
-//
-//   db.prepare('SELECT * FROM products WHERE id = ?').get(id)
-//   db.prepare('INSERT INTO t VALUES (?, ?)').run(a, b)
-//   db.prepare('SELECT * FROM t').all()
-//   db.transaction(fn)()   — run a synchronous transaction
-// ════════════════════════════════════════════════════════════════
-
-const Database = require('better-sqlite3');
-const path         = require('path');
-const dotenv       = require('dotenv');
+const path = require('path');
+const dotenv = require('dotenv');
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const dbPath = path.resolve(__dirname, '..', process.env.DB_PATH || './novacart.db');
+const isPostgres = Boolean(process.env.DATABASE_URL);
+if (process.env.NODE_ENV === 'production' && !isPostgres) {
+  throw new Error('DATABASE_URL is required in production; refusing to open a local SQLite database.');
+}
 
-// Open (or create) the SQLite database file
-const rawDb = new Database(dbPath);
-rawDb.exec('PRAGMA foreign_keys = ON');
+let pool;
+let sqlite;
+let sqliteTransactionQueue = Promise.resolve();
 
-console.log('✅ SQLite connected:', dbPath);
+if (isPostgres) {
+  const { Pool } = require('pg');
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+  });
+} else {
+  const Database = require('better-sqlite3');
+  const dbPath = path.resolve(__dirname, '..', process.env.DB_PATH || './novacart.db');
+  sqlite = new Database(dbPath);
+  sqlite.pragma('foreign_keys = ON');
+  console.log('SQLite connected:', dbPath);
+}
 
-// ── Database wrapper ──────────────────────────────────────────
-const db = {
-  // better-sqlite3 statements use the spread-argument API expected by models.
-  prepare(sql) {
-    return rawDb.prepare(sql);
-  },
+function postgresSql(sql) {
+  let index = 0;
+  return sql.replace(/\?/g, () => `$${++index}`);
+}
 
-  // exec(sql)  — run multiple statements (no params, used for schema/pragmas)
-  exec(sql) {
-    return rawDb.exec(sql);
-  },
+function sqliteQuery(connection, sql, params) {
+  const statement = connection.prepare(sql);
+  if (statement.reader) {
+    const rows = statement.all(...params);
+    return { rows, rowCount: rows.length };
+  }
 
-  // transaction(fn)  — wraps a function in BEGIN/COMMIT/ROLLBACK
-  // Usage:  const tx = db.transaction(() => { ... }); tx();
-  transaction(fn) {
-    return rawDb.transaction(fn);
-  },
+  const result = statement.run(...params);
+  return { rows: [], rowCount: result.changes, changes: result.changes };
+}
 
-  // close()  — close the database file
-  close() {
-    rawDb.close();
-  },
-};
+async function query(sql, params = []) {
+  if (isPostgres) return pool.query(postgresSql(sql), params);
 
-module.exports = db;
+  const available = sqliteTransactionQueue;
+  await available;
+  return sqliteQuery(sqlite, sql, params);
+}
+
+async function withTransaction(callback) {
+  if (isPostgres) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await callback({
+        query: (sql, params = []) => client.query(postgresSql(sql), params),
+      });
+      await client.query('COMMIT');
+      return result;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  const previous = sqliteTransactionQueue;
+  let release;
+  sqliteTransactionQueue = new Promise(resolve => { release = resolve; });
+  await previous;
+  let transactionStarted = false;
+  try {
+    sqlite.exec('BEGIN IMMEDIATE');
+    transactionStarted = true;
+    const result = await callback({ query: async (sql, params = []) => sqliteQuery(sqlite, sql, params) });
+    sqlite.exec('COMMIT');
+    return result;
+  } catch (error) {
+    if (transactionStarted) sqlite.exec('ROLLBACK');
+    throw error;
+  } finally {
+    release();
+  }
+}
+
+async function testConnection() {
+  await query('SELECT 1');
+  return true;
+}
+
+async function close() {
+  if (pool) await pool.end();
+  if (sqlite) sqlite.close();
+}
+
+module.exports = { isPostgres, query, withTransaction, testConnection, close };

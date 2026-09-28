@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// controllers/orderController.js — Order Processing Logic (SQLite)
+// controllers/orderController.js — Order Processing Logic
 // ════════════════════════════════════════════════════════════════
 //
 // All order routes require the user to be logged in (JWT).
@@ -13,18 +13,19 @@ const db = require('../config/db');
 
 // ── POST /api/orders ─────────────────────────────────────────
 // Converts the user's current cart into a completed order.
-// Uses a SQLite transaction for atomicity (all-or-nothing).
-const placeOrder = (req, res) => {
+// Uses a database transaction for atomicity (all-or-nothing).
+const placeOrder = async (req, res) => {
   try {
     const userId = req.user.id;
 
     // 1. Get the user's cart with product info
-    const cartItems = db.prepare(`
+    const cartResult = await db.query(`
       SELECT ci.product_id, ci.quantity, p.price, p.stock, p.name
       FROM cart_items ci
       JOIN products p ON ci.product_id = p.id
       WHERE ci.user_id = ?
-    `).all(userId);
+    `, [userId]);
+    const cartItems = cartResult.rows;
 
     if (cartItems.length === 0) {
       return res.status(400).json({ message: 'Your cart is empty. Add items before placing an order.' });
@@ -42,44 +43,43 @@ const placeOrder = (req, res) => {
     const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     // 3. Everything in a transaction — if any step fails, all changes roll back
-    const placeOrderTx = db.transaction(() => {
+    const orderId = await db.withTransaction(async transaction => {
       // Insert order header
-      const orderInfo = db.prepare(
-        'INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, ?)'
-      ).run(userId, parseFloat(total.toFixed(2)), 'pending');
-
-      const orderId = orderInfo.lastInsertRowid;
+      const orderResult = await transaction.query(
+        'INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, ?) RETURNING id',
+        [userId, parseFloat(total.toFixed(2)), 'pending']
+      );
+      const createdOrderId = orderResult.rows[0].id;
 
       // Insert order_items (one row per product)
-      const insertItem = db.prepare(
-        'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)'
-      );
       for (const item of cartItems) {
-        insertItem.run(orderId, item.product_id, item.quantity, item.price);
+        await transaction.query(
+          'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
+          [createdOrderId, item.product_id, item.quantity, item.price]
+        );
       }
 
       // Reduce stock for each product
-      const reduceStock = db.prepare('UPDATE products SET stock = stock - ? WHERE id = ?');
       for (const item of cartItems) {
-        reduceStock.run(item.quantity, item.product_id);
+        await transaction.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
       }
 
       // Clear the user's cart
-      db.prepare('DELETE FROM cart_items WHERE user_id = ?').run(userId);
+      await transaction.query('DELETE FROM cart_items WHERE user_id = ?', [userId]);
 
-      return orderId;
+      return createdOrderId;
     });
 
-    const orderId = placeOrderTx();
-
     // 4. Return the new order with its items
-    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
-    const items = db.prepare(`
+    const orderResult = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    const order = orderResult.rows[0];
+    const itemResult = await db.query(`
       SELECT oi.*, p.name, p.image_url
       FROM order_items oi
       LEFT JOIN products p ON oi.product_id = p.id
       WHERE oi.order_id = ?
-    `).all(orderId);
+    `, [orderId]);
+    const items = itemResult.rows;
 
     res.status(201).json({
       success: true,
@@ -94,11 +94,13 @@ const placeOrder = (req, res) => {
 
 // ── GET /api/orders ───────────────────────────────────────────
 // Returns all orders for the logged-in user, newest first.
-const getUserOrders = (req, res) => {
+const getUserOrders = async (req, res) => {
   try {
-    const orders = db.prepare(
+    const result = await db.query(
       'SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC'
-    ).all(req.user.id);
+      , [req.user.id]
+    );
+    const orders = result.rows;
     res.status(200).json({ success: true, count: orders.length, data: orders });
   } catch (err) {
     console.error('getUserOrders error:', err.message);
@@ -109,23 +111,25 @@ const getUserOrders = (req, res) => {
 // ── GET /api/orders/:id ───────────────────────────────────────
 // Returns a single order with its line items.
 // Only the order's owner can view it.
-const getOrderById = (req, res) => {
+const getOrderById = async (req, res) => {
   try {
     const orderId = parseInt(req.params.id, 10);
     if (isNaN(orderId)) return res.status(400).json({ message: 'Invalid order ID.' });
 
-    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
+    const orderResult = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    const order = orderResult.rows[0];
     if (!order) return res.status(404).json({ message: 'Order not found.' });
     if (order.user_id !== req.user.id) {
       return res.status(403).json({ message: 'You do not have access to this order.' });
     }
 
-    const items = db.prepare(`
+    const itemResult = await db.query(`
       SELECT oi.*, p.name, p.image_url, p.category
       FROM order_items oi
       LEFT JOIN products p ON oi.product_id = p.id
       WHERE oi.order_id = ?
-    `).all(orderId);
+    `, [orderId]);
+    const items = itemResult.rows;
 
     res.status(200).json({ success: true, data: { ...order, items } });
   } catch (err) {

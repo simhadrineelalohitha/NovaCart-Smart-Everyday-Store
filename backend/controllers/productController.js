@@ -147,14 +147,18 @@ const getProductReviews = async (req, res, next) => {
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ error: 'Invalid ID', message: 'Product ID must be a positive number.' });
     }
-    const product = productModel.getProductById(id);
+    const product = await productModel.getProductById(id);
     if (!product) {
       return res.status(404).json({ error: 'Not Found', message: `No product found with ID ${id}.` });
     }
+    const [summary, reviews] = await Promise.all([
+      productReviewModel.getSummary(id),
+      productReviewModel.getReviews(id),
+    ]);
     res.status(200).json({
       success: true,
-      summary: productReviewModel.getSummary(id),
-      data: productReviewModel.getReviews(id),
+      summary,
+      data: reviews,
     });
   } catch (err) {
     next(err);
@@ -180,20 +184,21 @@ const createProductReview = async (req, res, next) => {
         message: 'Review title must be 3-120 characters and review text must be 10-2000 characters.',
       });
     }
-    if (!productModel.getProductById(productId)) {
+    if (!await productModel.getProductById(productId)) {
       return res.status(404).json({ error: 'Not Found', message: `No product found with ID ${productId}.` });
     }
 
-    const review = productReviewModel.createReview({
+    const review = await productReviewModel.createReview({
       productId,
       userId: req.user.id,
       rating,
       title,
       body,
     });
-    res.status(201).json({ success: true, data: review, summary: productReviewModel.getSummary(productId) });
+    const summary = await productReviewModel.getSummary(productId);
+    res.status(201).json({ success: true, data: review, summary });
   } catch (err) {
-    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+    if (err.code === '23505' || err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       return res.status(409).json({ error: 'Review Exists', message: 'You have already reviewed this product.' });
     }
     next(err);

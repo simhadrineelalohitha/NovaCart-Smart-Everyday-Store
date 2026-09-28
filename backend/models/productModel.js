@@ -1,53 +1,38 @@
-// ════════════════════════════════════════════════════════════════
-// models/productModel.js — Product Database Functions (SQLite)
-// ════════════════════════════════════════════════════════════════
-//
-// This file ONLY talks to the database.
-// node-sqlite3-wasm is synchronous — no async/await needed.
-//
-// Route → Controller (HTTP logic) → Model (DB logic) ← this file
-// ════════════════════════════════════════════════════════════════
-
 const db = require('../config/db');
 
-// ── getAllProducts ─────────────────────────────────────────────
-// Returns all products, newest first. Optionally filter by category.
-function getAllProducts(category) {
+async function getAllProducts(category) {
+  let result;
   if (category) {
-    return db.prepare(
-      'SELECT * FROM products WHERE category = ? ORDER BY created_at DESC'
-    ).all(category);
+    result = await db.query('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [category]);
+  } else {
+    result = await db.query('SELECT * FROM products ORDER BY created_at DESC');
   }
-  return db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
+  return result.rows;
 }
 
-// ── getProductById ────────────────────────────────────────────
-// Returns one product row by ID, or undefined if not found.
-function getProductById(id) {
-  return db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+async function getProductById(id) {
+  const result = await db.query('SELECT * FROM products WHERE id = ?', [id]);
+  return result.rows[0];
 }
 
-// ── createProduct ─────────────────────────────────────────────
-// Inserts a new product and returns the created row.
-function createProduct({ name, description, price, image_url, category, stock }) {
-  const info = db.prepare(
+async function createProduct({ name, description, price, image_url, category, stock }) {
+  const result = await db.query(
     `INSERT INTO products (name, description, price, image_url, category, stock)
-     VALUES (?, ?, ?, ?, ?, ?)`
-  ).run(name, description || null, price, image_url || null, category, stock);
-  return getProductById(info.lastInsertRowid);
+     VALUES (?, ?, ?, ?, ?, ?) RETURNING *`,
+    [name, description || null, price, image_url || null, category, stock]
+  );
+  return result.rows[0];
 }
 
-// ── updateProduct ─────────────────────────────────────────────
-// Updates only the fields provided, keeps old values for missing fields.
-function updateProduct(id, { name, description, price, image_url, category, stock }) {
-  const existing = getProductById(id);
+async function updateProduct(id, { name, description, price, image_url, category, stock }) {
+  const existing = await getProductById(id);
   if (!existing) return undefined;
 
-  db.prepare(
+  await db.query(
     `UPDATE products
      SET name = ?, description = ?, price = ?, image_url = ?, category = ?, stock = ?
-     WHERE id = ?`
-  ).run(
+     WHERE id = ?`,
+    [
     name        ?? existing.name,
     description ?? existing.description,
     price       ?? existing.price,
@@ -55,16 +40,15 @@ function updateProduct(id, { name, description, price, image_url, category, stoc
     category    ?? existing.category,
     stock       ?? existing.stock,
     id
+    ]
   );
-  return getProductById(id);
+  return await getProductById(id);
 }
 
-// ── deleteProduct ─────────────────────────────────────────────
-// Deletes a product and returns the deleted row (or undefined).
-function deleteProduct(id) {
-  const existing = getProductById(id);
+async function deleteProduct(id) {
+  const existing = await getProductById(id);
   if (!existing) return undefined;
-  db.prepare('DELETE FROM products WHERE id = ?').run(id);
+  await db.query('DELETE FROM products WHERE id = ?', [id]);
   return existing;
 }
 

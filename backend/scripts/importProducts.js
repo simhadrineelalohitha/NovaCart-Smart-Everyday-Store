@@ -229,7 +229,7 @@ async function importProducts() {
   const db = new Database(dbPath);
   try {
     db.exec('PRAGMA foreign_keys = ON');
-    db.exec(fs.readFileSync(path.join(__dirname, '../models/schema.sql'), 'utf8'));
+    db.exec(fs.readFileSync(path.join(__dirname, '../models/schema.sqlite.sql'), 'utf8'));
     migrateProducts(db);
 
     const findExisting = db.prepare('SELECT id FROM products WHERE source_product_id = ?');

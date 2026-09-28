@@ -9,7 +9,7 @@ const dotenv  = require('dotenv');
 const path    = require('path');
 
 // Load environment variables from .env file FIRST, before anything else
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // ── Import route modules ──────────────────────────────────────
 const authRoutes    = require('./routes/authRoutes');
@@ -20,10 +20,12 @@ const orderRoutes   = require('./routes/orderRoutes');
 // Create the Express application
 const app  = express();
 const PORT = process.env.PORT || 5000;
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required for authentication.');
+}
 
 // ── Connect to the database ───────────────────────────────────
-// Importing db.js triggers the connection test automatically
-require('./config/db');
+const db = require('./config/db');
 
 // ── Global Middleware ─────────────────────────────────────────
 // These run on EVERY incoming request, in order.
@@ -92,16 +94,21 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ── Start the Server ──────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log('');
-  console.log('  ╔══════════════════════════════════════╗');
-  console.log('  ║     NovaCart Backend Started  🛒     ║');
-  console.log('  ╚══════════════════════════════════════╝');
-  console.log(`  Server  : http://localhost:${PORT}`);
-  console.log(`  Health  : http://localhost:${PORT}/api/health`);
-  console.log(`  Products: http://localhost:${PORT}/api/products`);
-  console.log('');
-});
+async function startServer() {
+  await db.testConnection();
+  console.log(`Database connection ready (${db.isPostgres ? 'PostgreSQL' : 'SQLite'}).`);
+
+  return app.listen(PORT, () => {
+    console.log(`NovaCart API listening on port ${PORT}.`);
+  });
+}
+
+if (require.main === module) {
+  startServer().catch(error => {
+    console.error(`NovaCart startup failed: ${error.message}`);
+    process.exitCode = 1;
+  });
+}
 
 module.exports = app;
+module.exports.startServer = startServer;

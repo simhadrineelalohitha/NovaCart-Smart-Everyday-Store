@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-// controllers/cartController.js — Shopping Cart Logic (SQLite)
+// controllers/cartController.js — Shopping Cart Logic
 // ════════════════════════════════════════════════════════════════
 //
 // All cart routes require the user to be logged in (JWT).
@@ -14,8 +14,8 @@
 const db = require('../config/db');
 
 // ── Helper: fetch the full cart for a user ────────────────────
-function fetchCart(userId) {
-  const items = db.prepare(`
+async function fetchCart(userId, database = db) {
+  const result = await database.query(`
     SELECT
       ci.id         AS cart_item_id,
       ci.quantity,
@@ -30,16 +30,17 @@ function fetchCart(userId) {
     JOIN products p ON ci.product_id = p.id
     WHERE ci.user_id = ?
     ORDER BY ci.id ASC
-  `).all(userId);
+  `, [userId]);
+  const items = result.rows;
 
   const total = items.reduce((sum, item) => sum + item.subtotal, 0);
   return { items, total: parseFloat(total.toFixed(2)) };
 }
 
 // ── GET /api/cart ─────────────────────────────────────────────
-const getCart = (req, res) => {
+const getCart = async (req, res) => {
   try {
-    const { items, total } = fetchCart(req.user.id);
+    const { items, total } = await fetchCart(req.user.id);
     res.status(200).json({ success: true, data: items, total });
   } catch (err) {
     console.error('getCart error:', err.message);
@@ -50,7 +51,7 @@ const getCart = (req, res) => {
 // ── POST /api/cart ────────────────────────────────────────────
 // Body: { product_id, quantity? }
 // If the product is already in the cart, increments its quantity.
-const addToCart = (req, res) => {
+const addToCart = async (req, res) => {
   try {
     const { product_id, quantity = 1 } = req.body;
 
@@ -58,22 +59,25 @@ const addToCart = (req, res) => {
     const qty = parseInt(quantity, 10);
     if (isNaN(qty) || qty < 1) return res.status(400).json({ message: 'quantity must be a positive integer.' });
 
-    const product = db.prepare('SELECT * FROM products WHERE id = ?').get(product_id);
+    const productResult = await db.query('SELECT * FROM products WHERE id = ?', [product_id]);
+    const product = productResult.rows[0];
     if (!product) return res.status(404).json({ message: 'Product not found.' });
     if (product.stock < qty) return res.status(400).json({ message: `Only ${product.stock} unit(s) in stock.` });
 
     // Check if already in cart — if so, increment; otherwise insert
-    const existing = db.prepare(
+    const existingResult = await db.query(
       'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ?'
-    ).get(req.user.id, product_id);
+      , [req.user.id, product_id]
+    );
+    const existing = existingResult.rows[0];
 
     if (existing) {
-      db.prepare('UPDATE cart_items SET quantity = quantity + ? WHERE id = ?').run(qty, existing.id);
+      await db.query('UPDATE cart_items SET quantity = quantity + ? WHERE id = ?', [qty, existing.id]);
     } else {
-      db.prepare('INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)').run(req.user.id, product_id, qty);
+      await db.query('INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)', [req.user.id, product_id, qty]);
     }
 
-    const { items, total } = fetchCart(req.user.id);
+    const { items, total } = await fetchCart(req.user.id);
     res.status(200).json({ success: true, data: items, total });
   } catch (err) {
     console.error('addToCart error:', err.message);
@@ -83,7 +87,7 @@ const addToCart = (req, res) => {
 
 // ── PUT /api/cart/:id ─────────────────────────────────────────
 // :id is the cart_item id. Body: { quantity }
-const updateCartItem = (req, res) => {
+const updateCartItem = async (req, res) => {
   try {
     const cartItemId = parseInt(req.params.id, 10);
     const quantity   = parseInt(req.body.quantity, 10);
@@ -91,17 +95,19 @@ const updateCartItem = (req, res) => {
     if (isNaN(cartItemId)) return res.status(400).json({ message: 'Invalid cart item ID.' });
     if (isNaN(quantity) || quantity < 1) return res.status(400).json({ message: 'quantity must be a positive integer.' });
 
-    const item = db.prepare('SELECT * FROM cart_items WHERE id = ? AND user_id = ?').get(cartItemId, req.user.id);
+    const itemResult = await db.query('SELECT * FROM cart_items WHERE id = ? AND user_id = ?', [cartItemId, req.user.id]);
+    const item = itemResult.rows[0];
     if (!item) return res.status(404).json({ message: 'Cart item not found.' });
 
-    const product = db.prepare('SELECT stock FROM products WHERE id = ?').get(item.product_id);
+    const productResult = await db.query('SELECT stock FROM products WHERE id = ?', [item.product_id]);
+    const product = productResult.rows[0];
     if (product && product.stock < quantity) {
       return res.status(400).json({ message: `Only ${product.stock} unit(s) in stock.` });
     }
 
-    db.prepare('UPDATE cart_items SET quantity = ? WHERE id = ?').run(quantity, cartItemId);
+    await db.query('UPDATE cart_items SET quantity = ? WHERE id = ?', [quantity, cartItemId]);
 
-    const { items, total } = fetchCart(req.user.id);
+    const { items, total } = await fetchCart(req.user.id);
     res.status(200).json({ success: true, data: items, total });
   } catch (err) {
     console.error('updateCartItem error:', err.message);
@@ -110,15 +116,15 @@ const updateCartItem = (req, res) => {
 };
 
 // ── DELETE /api/cart/:id ──────────────────────────────────────
-const removeFromCart = (req, res) => {
+const removeFromCart = async (req, res) => {
   try {
     const cartItemId = parseInt(req.params.id, 10);
     if (isNaN(cartItemId)) return res.status(400).json({ message: 'Invalid cart item ID.' });
 
-    const info = db.prepare('DELETE FROM cart_items WHERE id = ? AND user_id = ?').run(cartItemId, req.user.id);
-    if (info.changes === 0) return res.status(404).json({ message: 'Cart item not found.' });
+    const result = await db.query('DELETE FROM cart_items WHERE id = ? AND user_id = ?', [cartItemId, req.user.id]);
+    if (result.rowCount === 0) return res.status(404).json({ message: 'Cart item not found.' });
 
-    const { items, total } = fetchCart(req.user.id);
+    const { items, total } = await fetchCart(req.user.id);
     res.status(200).json({ success: true, data: items, total });
   } catch (err) {
     console.error('removeFromCart error:', err.message);

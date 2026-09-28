@@ -38,7 +38,8 @@ const register = async (req, res) => {
     }
 
     // Check if email is already registered
-    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
+    const existingResult = await db.query('SELECT id FROM users WHERE email = ?', [email.toLowerCase().trim()]);
+    const existing = existingResult.rows[0];
     if (existing) {
       return res.status(409).json({ message: 'An account with this email already exists.' });
     }
@@ -47,16 +48,20 @@ const register = async (req, res) => {
     const password_hash = await bcrypt.hash(password, 10);
 
     // Insert the new user
-    const info = db.prepare(
-      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)'
-    ).run(name.trim(), email.toLowerCase().trim(), password_hash);
+    const result = await db.query(
+      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?) RETURNING id, name, email',
+      [name.trim(), email.toLowerCase().trim(), password_hash]
+    );
 
-    const user  = db.prepare('SELECT id, name, email FROM users WHERE id = ?').get(info.lastInsertRowid);
+    const user = result.rows[0];
     const token = signToken(user);
 
     res.status(201).json({ success: true, message: 'Account created successfully.', token, user });
   } catch (err) {
     console.error('Register error:', err.message);
+    if (err.code === '23505' || err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      return res.status(409).json({ message: 'An account with this email already exists.' });
+    }
     res.status(500).json({ message: 'Server error during registration.' });
   }
 };
@@ -72,7 +77,8 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required.' });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
+    const result = await db.query('SELECT * FROM users WHERE email = ?', [email.toLowerCase().trim()]);
+    const user = result.rows[0];
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }

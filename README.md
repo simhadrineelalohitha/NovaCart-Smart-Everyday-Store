@@ -28,46 +28,41 @@ NovaCart/
 ### 1. Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18 or newer)
-- [PostgreSQL](https://www.postgresql.org/) (v14 or newer)
+- An existing PostgreSQL database for production. These instructions do not create a database.
 
-### 2. Set Up the Database
+### 2. Configure Environment Variables
 
-Open a terminal and run:
+Copy `backend/.env.example` to `backend/.env` for local development. Local development uses `DB_PATH` when `DATABASE_URL` is empty; production requires `DATABASE_URL`. The authentication code requires `JWT_SECRET`; `JWT_EXPIRES_IN` is optional.
 
-```bash
-# Create the database
-psql -U postgres -c "CREATE DATABASE novacart;"
+Keep production credentials in the hosting provider's environment settings, not in source control. No `SESSION_SECRET` is used by this application.
 
-# Run the schema to create tables and seed data
-psql -U postgres -d novacart -f backend/models/schema.sql
-```
+### 3. Install and Start
 
-### 3. Configure Environment Variables
+From the repository root:
 
 ```bash
-# Copy the example file
-cp backend/.env.example backend/.env
-```
-
-Then open `backend/.env` and fill in:
-- `DB_PASSWORD` — your PostgreSQL password
-- `JWT_SECRET` — a long random string (run `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`)
-
-### 4. Install Dependencies & Start the Backend
-
-```bash
-cd backend
 npm install
-npm run dev      # development (auto-restarts on file changes)
-# or
-npm start        # production
+npm start
 ```
 
-### 5. Open the Frontend
+The root install also installs the backend dependencies. The server serves the frontend and API from one origin at `http://localhost:5000` by default. Local HTML-file mode remains supported by the frontend API helper.
 
-Simply open `frontend/pages/index.html` in your browser.
+### 4. Initialize or Migrate Data
 
-> No frontend server needed — it runs directly from the file system.
+Database initialization is explicit and does not run at server startup. Before applying the schema or importing products, inspect the existing target PostgreSQL schema. `npm run db:init` (from `backend/`) applies non-destructive `CREATE TABLE IF NOT EXISTS` statements to the database selected by `DATABASE_URL`; it does not create a database or seed sample products.
+
+To merge the local SQLite catalog and its local accounts into that existing PostgreSQL database, configure `DATABASE_URL` for the command and run `npm run db:migrate:sqlite` from `backend/`. The importer checks the existing schema, de-duplicates products by `source_product_id` and users by email, does not overwrite matches, and reports the final counts. It is not run automatically.
+
+### Render Commands
+
+Set the Render service root directory to the repository root, then use:
+
+```text
+Build Command: npm install
+Start Command: npm start
+```
+
+The production API uses same-origin `/api/...` paths and requires `NODE_ENV=production`, `DATABASE_URL`, and `JWT_SECRET`. Set `FRONTEND_URL` only when the browser frontend is on a different origin.
 
 ---
 
