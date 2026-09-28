@@ -3,7 +3,15 @@
 // ════════════════════════════════════════════════════════════════
 
 // ── Backend Base URL ──────────────────────────────────────────
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = (() => {
+  if (window.NOVACART_API_BASE_URL) {
+    return window.NOVACART_API_BASE_URL.replace(/\/+$/, '');
+  }
+
+  const isLocalDevelopment = window.location.protocol === 'file:'
+    || ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  return isLocalDevelopment ? 'http://localhost:5000/api' : '/api';
+})();
 
 // ── Token Helpers ─────────────────────────────────────────────
 function saveToken(token)  { localStorage.setItem('novacart_token', token); }
