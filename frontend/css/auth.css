@@ -1,0 +1,120 @@
+/* ════════════════════════════════════════════════════════════════
+   auth.css — Login & Register Pages
+   ════════════════════════════════════════════════════════════════ */
+
+/* Full-page centred layout */
+.auth-page {
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-4);
+}
+
+/* Card */
+.auth-card {
+  background-color: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.auth-logo {
+  display: inline-block;
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--clr-primary);
+  margin-bottom: var(--space-5);
+  text-decoration: none;
+}
+
+.auth-card h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--clr-text);
+  margin-bottom: var(--space-1);
+}
+
+.auth-subtitle {
+  color: var(--clr-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-6);
+}
+
+/* ── Form Inputs ─────────────────────────────────────────────── */
+.form-group {
+  margin-bottom: var(--space-5);
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--clr-text);
+  margin-bottom: var(--space-2);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius);
+  font-size: var(--font-size-base);
+  color: var(--clr-text);
+  background-color: #fafafa;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  outline: none;
+  font-family: var(--font-sans);
+}
+
+.form-group input:focus {
+  border-color: var(--clr-primary);
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+/* ── Message Area ────────────────────────────────────────────── */
+.auth-message {
+  font-size: var(--font-size-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-5);
+  display: none;
+  text-align: left;
+}
+
+.auth-message.error {
+  display: block;
+  background-color: #fee2e2;
+  color: var(--clr-error);
+  border: 1px solid #fca5a5;
+}
+
+.auth-message.success {
+  display: block;
+  background-color: #d1fae5;
+  color: var(--clr-success);
+  border: 1px solid #6ee7b7;
+}
+
+/* ── Bottom switch link ──────────────────────────────────────── */
+.auth-switch {
+  margin-top: var(--space-6);
+  font-size: var(--font-size-sm);
+  color: var(--clr-text-secondary);
+}
+
+.auth-switch a {
+  color: var(--clr-primary);
+  font-weight: 600;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — NovaCart</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/navbar.css" />
+  <link rel="stylesheet" href="../css/auth.css" />
+  <link rel="stylesheet" href="../css/checkout.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar__logo">🛒 NovaCart</a>
+    <ul class="navbar__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="cart.html">Cart <span id="cart-count" class="cart-badge">0</span></a></li>
+      <li><a href="login.html" id="nav-login">Login</a></li>
+      <li><a href="register.html" id="nav-register">Register</a></li>
+      <li><a href="#" id="nav-logout" style="display:none;">Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="container checkout-page">
+    <div id="checkout-container">
+      <!-- Order summary + form injected by checkout.js -->
+      <p class="loading-text">Loading your order…</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2024 NovaCart. Built for CodeAlpha Internship.</p>
+  </footer>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/checkout.js"></script>
+
+</body>
+</html>

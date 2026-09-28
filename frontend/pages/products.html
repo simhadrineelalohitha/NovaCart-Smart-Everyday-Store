@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Browse all products at NovaCart — Electronics, Accessories, Home & Lifestyle." />
+  <title>Products — NovaCart</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/navbar.css" />
+  <link rel="stylesheet" href="../css/products-page.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════════
+       NAVIGATION BAR
+       ════════════════════════════════════════════════════════ -->
+  <header class="navbar" id="navbar">
+    <div class="navbar__inner">
+      <a href="index.html" class="navbar__logo" aria-label="NovaCart Home">
+        <span class="navbar__logo-icon">⬡</span>
+        <span class="navbar__logo-text">Nova<span>Cart</span></span>
+      </a>
+
+      <nav class="navbar__links" aria-label="Main navigation">
+        <a href="index.html" class="navbar__link">Home</a>
+        <a href="products.html" class="navbar__link active">Products</a>
+      </nav>
+
+      <div class="navbar__actions">
+        <a href="cart.html" class="navbar__cart" aria-label="Shopping cart">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span class="navbar__cart-badge" id="cart-count" aria-label="items in cart">0</span>
+        </a>
+        <a href="login.html"    class="navbar__btn navbar__btn--outline" id="nav-login">Log In</a>
+        <a href="register.html" class="navbar__btn navbar__btn--filled"  id="nav-register">Sign Up</a>
+        <button class="navbar__btn navbar__btn--outline" id="nav-logout" style="display:none;">Log Out</button>
+      </div>
+
+      <button class="navbar__hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="navbar__drawer" id="nav-drawer" aria-hidden="true">
+      <a href="index.html"    class="navbar__drawer-link">Home</a>
+      <a href="products.html" class="navbar__drawer-link active">Products</a>
+      <hr class="navbar__drawer-divider" />
+      <a href="login.html"    class="navbar__drawer-link" id="drawer-login">Log In</a>
+      <a href="register.html" class="navbar__drawer-link" id="drawer-register">Sign Up</a>
+      <button class="navbar__drawer-link" id="drawer-logout" style="display:none;">Log Out</button>
+    </div>
+  </header>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       PAGE HEADER
+       ════════════════════════════════════════════════════════ -->
+  <section class="page-hero">
+    <div class="container page-hero__inner">
+      <div>
+        <p class="page-hero__breadcrumb">
+          <a href="index.html">Home</a>
+          <span aria-hidden="true"> / </span>
+          <span>Products</span>
+        </p>
+        <h1 class="page-hero__title">All Products</h1>
+        <p class="page-hero__sub" id="result-summary">Loading…</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       CONTROLS BAR — search + filter + sort + clear
+       ════════════════════════════════════════════════════════ -->
+  <div class="controls-bar" id="controls-bar">
+    <div class="container controls-bar__inner">
+
+      <!-- Search -->
+      <div class="search-wrap">
+        <label for="search-input" class="sr-only">Search products</label>
+        <div class="search-box">
+          <svg class="search-box__icon" xmlns="http://www.w3.org/2000/svg"
+               width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="search"
+            id="search-input"
+            class="search-box__input"
+            placeholder="Search by name or keyword…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="search-box__clear" id="search-clear" aria-label="Clear search" style="display:none;">✕</button>
+        </div>
+      </div>
+
+      <!-- Category filter pills -->
+      <div class="filter-pills" id="filter-pills" role="group" aria-label="Filter by category">
+        <button class="pill active" data-category="all">All</button>
+        <!-- More pills injected by JS from API data -->
+      </div>
+
+      <!-- Sort dropdown -->
+      <div class="sort-wrap">
+        <label for="sort-select" class="sr-only">Sort products</label>
+        <select id="sort-select" class="sort-select" aria-label="Sort products">
+          <option value="default">Sort: Default</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="name-asc">Name: A → Z</option>
+          <option value="name-desc">Name: Z → A</option>
+        </select>
+      </div>
+
+      <!-- Clear all filters — only visible when a filter is active -->
+      <button class="clear-btn" id="clear-btn" style="display:none;" aria-label="Clear all filters">
+        ✕ Clear filters
+      </button>
+
+    </div>
+
+    <!-- Active filter chips row -->
+    <div class="container">
+      <div class="active-chips" id="active-chips" aria-live="polite"></div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       PRODUCT GRID
+       ════════════════════════════════════════════════════════ -->
+  <main class="products-main">
+    <div class="container">
+
+      <!-- Skeleton loader -->
+      <div class="product-grid" id="skeleton-grid" aria-hidden="true">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
+
+      <!-- API error state -->
+      <div class="state-box state-box--error" id="error-state" style="display:none;" role="alert">
+        <span class="state-box__icon">🔌</span>
+        <p class="state-box__title">Couldn't reach the server</p>
+        <p class="state-box__desc" id="error-desc">
+          Make sure the backend is running on <strong>http://localhost:5000</strong>
+          then try again.
+        </p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;">
+          <button class="btn btn--primary" onclick="window.loadProducts()">↻ Retry</button>
+          <a href="index.html" class="btn btn--outline">← Go Home</a>
+        </div>
+      </div>
+
+      <!-- Empty / no-results state -->
+      <div class="state-box" id="empty-state" style="display:none;">
+        <span class="state-box__icon">🔍</span>
+        <p class="state-box__title">No products match your search</p>
+        <p class="state-box__desc" id="empty-desc">Try different keywords or clear the filters.</p>
+        <button class="btn btn--outline" onclick="window.clearAllFilters()">Clear all filters</button>
+      </div>
+
+      <!-- Live product grid -->
+      <div class="product-grid" id="product-grid" role="list" style="display:none;"></div>
+
+    </div>
+  </main>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       TOAST NOTIFICATION (for "Added to cart")
+       ════════════════════════════════════════════════════════ -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       FOOTER
+       ════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <span class="footer__logo">⬡ NovaCart</span>
+        <p>Smart everyday essentials,<br/>curated with care.</p>
+      </div>
+      <div class="footer__links">
+        <div class="footer__col">
+          <p class="footer__col-title">Shop</p>
+          <a href="products.html">All Products</a>
+          <a href="products.html?category=Electronics">Electronics</a>
+          <a href="products.html?category=Accessories">Accessories</a>
+          <a href="products.html?category=Home">Home</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__col-title">Account</p>
+          <a href="login.html">Log In</a>
+          <a href="register.html">Register</a>
+          <a href="cart.html">Cart</a>
+        </div>
+        <div class="footer__col">
+          <p class="footer__col-title">Info</p>
+          <a href="#">About Us</a>
+          <a href="#">Returns</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p>© 2024 NovaCart. Built for CodeAlpha Internship.</p>
+    </div>
+  </footer>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script src="../js/productsPage.js"></script>
+
+</body>
+</html>

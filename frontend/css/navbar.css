@@ -1,0 +1,271 @@
+/* ════════════════════════════════════════════════════════════════
+   navbar.css — NovaCart Navigation Bar
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Base ─────────────────────────────────────────────────────── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--clr-border);
+  transition: box-shadow var(--t-base);
+}
+
+/* Elevated shadow on scroll — added by navbar.js */
+.navbar.scrolled {
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+  height: 64px;
+}
+
+/* ── Logo ─────────────────────────────────────────────────────── */
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.navbar__logo-icon {
+  font-size: 1.5rem;
+  color: var(--clr-primary);
+  line-height: 1;
+}
+
+.navbar__logo-text {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--clr-text);
+  letter-spacing: -0.5px;
+}
+
+.navbar__logo-text span {
+  color: var(--clr-primary);
+}
+
+/* ── Desktop Nav Links ────────────────────────────────────────── */
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  margin-left: var(--space-4);
+}
+
+.navbar__link {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--clr-text-secondary);
+  position: relative;
+  padding-bottom: 2px;
+  transition: color var(--t-fast);
+  text-decoration: none;
+}
+
+.navbar__link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--clr-primary);
+  border-radius: var(--radius-full);
+  transition: width var(--t-base);
+}
+
+.navbar__link:hover,
+.navbar__link.active {
+  color: var(--clr-text);
+}
+
+.navbar__link:hover::after,
+.navbar__link.active::after {
+  width: 100%;
+}
+
+/* ── Actions (right side) ─────────────────────────────────────── */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+/* Cart icon */
+.navbar__cart {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--clr-text-secondary);
+  padding: var(--space-2);
+  border-radius: var(--radius);
+  transition: color var(--t-fast), background-color var(--t-fast);
+  text-decoration: none;
+}
+
+.navbar__cart:hover {
+  color: var(--clr-primary);
+  background-color: var(--clr-primary-light);
+}
+
+.navbar__cart-badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  background-color: var(--clr-accent);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  /* Hide if zero */
+  transition: opacity var(--t-fast), transform var(--t-fast);
+}
+
+.navbar__cart-badge[data-count="0"] {
+  opacity: 0;
+  transform: scale(0.7);
+  pointer-events: none;
+}
+
+/* Auth buttons */
+.navbar__btn {
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  transition: all var(--t-fast);
+  text-decoration: none;
+  border: 1.5px solid transparent;
+}
+
+.navbar__btn--outline {
+  color: var(--clr-text-secondary);
+  border-color: var(--clr-border);
+  background-color: transparent;
+}
+.navbar__btn--outline:hover {
+  color: var(--clr-text);
+  border-color: var(--clr-text-secondary);
+  background-color: transparent;
+}
+
+.navbar__btn--filled {
+  background-color: var(--clr-primary);
+  color: #fff;
+  border-color: var(--clr-primary);
+}
+.navbar__btn--filled:hover {
+  background-color: var(--clr-primary-dark);
+  border-color: var(--clr-primary-dark);
+}
+
+/* ── Hamburger (mobile only) ──────────────────────────────────── */
+.navbar__hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.navbar__hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--clr-text);
+  border-radius: 2px;
+  transition: transform var(--t-base), opacity var(--t-base);
+}
+
+/* Hamburger → X when open */
+.navbar__hamburger[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.navbar__hamburger[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.navbar__hamburger[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ── Mobile Drawer ─────────────────────────────────────────────── */
+.navbar__drawer {
+  display: none;
+  flex-direction: column;
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  border-top: 1px solid var(--clr-border);
+  gap: var(--space-1);
+}
+
+.navbar__drawer.open {
+  display: flex;
+}
+
+.navbar__drawer-link {
+  display: block;
+  padding: var(--space-3) 0;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--clr-text);
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+
+.navbar__drawer-link:hover,
+.navbar__drawer-link.active {
+  color: var(--clr-primary);
+}
+
+.navbar__drawer-divider {
+  border: none;
+  border-top: 1px solid var(--clr-border);
+  margin: var(--space-2) 0;
+}
+
+/* Cart badge in mobile state */
+.navbar__cart-badge[data-count="0"] {
+  display: none;
+}
+
+/* ── Responsive breakpoints ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar__links,
+  .navbar__actions {
+    display: none;
+  }
+
+  .navbar__hamburger {
+    display: flex;
+  }
+
+  .navbar__inner {
+    padding-inline: var(--space-4);
+  }
+}

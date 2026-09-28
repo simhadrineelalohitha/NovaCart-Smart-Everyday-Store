@@ -1,0 +1,35 @@
+{
+  "name": "novacart-backend",
+  "version": "1.0.0",
+  "description": "NovaCart e-commerce backend — Node.js + Express.js + SQLite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:init": "node scripts/initDb.js",
+    "db:seed": "node scripts/seedDb.js",
+    "db:import": "node scripts/importProducts.js"
+  },
+  "keywords": [
+    "ecommerce",
+    "nodejs",
+    "express",
+    "sqlite"
+  ],
+  "author": "NovaCart",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "node-sqlite3-wasm": "^0.8.25",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
