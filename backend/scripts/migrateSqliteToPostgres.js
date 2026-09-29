@@ -5,7 +5,7 @@ const { Pool } = require('pg');
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const USER_COLUMNS = ['name', 'email', 'password_hash', 'created_at'];
+const USER_COLUMNS = ['name', 'email', 'password_hash', 'role', 'created_at'];
 const PRODUCT_COLUMNS = [
   'source_product_id', 'name', 'description', 'price', 'image_url', 'category', 'stock',
   'subcategory', 'brand', 'variant_specification', 'mrp_inr', 'discount_percent',
@@ -118,6 +118,7 @@ async function migrate() {
       !user.name || !String(user.name).trim()
       || !user.email || !String(user.email).trim()
       || !user.password_hash || !String(user.password_hash).trim()
+      || !['user', 'admin'].includes(user.role || 'user')
     );
     const validUsers = sourceUsers.filter(user => !invalidUsers.includes(user));
 

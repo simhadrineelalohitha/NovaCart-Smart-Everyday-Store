@@ -149,13 +149,13 @@
           <span class="category-card__icon">👜</span>
           <span class="category-card__name">Accessories</span>
         </button>
-        <button class="category-card" data-filter="Home">
+        <button class="category-card" data-filter="Home & Kitchen">
           <span class="category-card__icon">🏠</span>
-          <span class="category-card__name">Home</span>
+          <span class="category-card__name">Home &amp; Kitchen</span>
         </button>
-        <button class="category-card" data-filter="Lifestyle">
+        <button class="category-card" data-filter="Fitness & Sports">
           <span class="category-card__icon">🌿</span>
-          <span class="category-card__name">Lifestyle</span>
+          <span class="category-card__name">Fitness &amp; Sports</span>
         </button>
       </div>
     </div>
@@ -174,7 +174,7 @@
         </div>
         <!-- Filter pills (populated by JS) -->
         <div class="filter-bar" id="filter-bar" role="group" aria-label="Filter by category">
-          <button class="filter-btn active" data-category="all">All</button>
+          <button class="filter-btn active" data-category="all">All Products</button>
         </div>
       </div>
 
@@ -207,6 +207,9 @@
 
       <!-- Product grid (populated by JS) -->
       <div class="product-grid" id="product-grid" role="list"></div>
+      <button class="btn btn--outline product-load-more" id="load-more-products" type="button" aria-controls="product-grid" hidden>
+        Show more products
+      </button>
     </div>
   </section>
 
@@ -267,6 +270,7 @@
 
   <!-- Scripts: api.js must load first (defines the `api` object used by products.js) -->
   <script src="../js/api.js"></script>
+  <script src="../js/engagement.js"></script>
   <script src="../js/navbar.js"></script>
   <script src="../js/products.js"></script>
 

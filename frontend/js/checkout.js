@@ -129,6 +129,7 @@ async function handlePlaceOrder(e) {
         <h2>Order Placed Successfully!</h2>
         <p>Order #${data.data.id} — Total: <strong>$${parseFloat(data.data.total_amount).toFixed(2)}</strong></p>
         <p style="color:#555; margin-top:.5rem;">Thank you for shopping with NovaCart!</p>
+        <a href="tracking.html?orderId=${data.data.id}" class="btn btn--outline" style="margin-top:1.5rem;">Track Order</a>
         <a href="products.html" class="btn btn--primary" style="margin-top:1.5rem;">Continue Shopping</a>
       </div>
     `;

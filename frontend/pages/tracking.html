@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Order - NovaCart</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/navbar.css" />
+  <link rel="stylesheet" href="../css/saved-products.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar__logo">NovaCart</a>
+    <ul class="navbar__links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="compare.html">Compare</a></li>
+    </ul>
+  </nav>
+  <main class="container saved-page">
+    <h1>Track Order</h1>
+    <p id="tracking-message">Loading order status...</p>
+    <ol id="tracking-timeline" class="tracking-timeline"></ol>
+  </main>
+  <script src="../js/api.js"></script>
+  <script src="../js/tracking.js"></script>
+</body>
+</html>

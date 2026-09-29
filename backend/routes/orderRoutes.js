@@ -14,6 +14,9 @@ router.post('/', authenticate, orderController.placeOrder);
 // Get all orders for the logged-in user
 router.get('/',  authenticate, orderController.getUserOrders);
 
+// Get status timeline for one owned order
+router.get('/:id/tracking', authenticate, orderController.getOrderTracking);
+
 // Get details of a specific order
 router.get('/:id', authenticate, orderController.getOrderById);
 

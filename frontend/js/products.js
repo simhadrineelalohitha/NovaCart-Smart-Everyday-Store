@@ -17,6 +17,9 @@
   // ── State ─────────────────────────────────────────────────────
   let allProducts    = [];   // full list from API
   let activeCategory = 'all';
+  let visibleProducts = [];
+  let visibleCount = 0;
+  const PAGE_SIZE = 24;
 
   // ── DOM refs ──────────────────────────────────────────────────
   const grid          = document.getElementById('product-grid');
@@ -26,11 +29,13 @@
   const errorMessage  = document.getElementById('error-message');
   const countLabel    = document.getElementById('product-count-label');
   const filterBar     = document.getElementById('filter-bar');
+  const loadMoreButton = document.getElementById('load-more-products');
 
   // ── Boot ──────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
     wireCategoryCards();
+    if (loadMoreButton) loadMoreButton.addEventListener('click', showMoreProducts);
   });
 
   // ════════════════════════════════════════════════════════════════
@@ -71,16 +76,34 @@
   // ════════════════════════════════════════════════════════════════
   // RENDER PRODUCTS
   // ════════════════════════════════════════════════════════════════
-  function renderProducts(products) {
+  function renderProducts(products, showAll = false) {
+    visibleProducts = products;
+    visibleCount = showAll ? visibleProducts.length : Math.min(PAGE_SIZE, visibleProducts.length);
     hideAll();
 
     if (products.length === 0) {
       showEmpty();
+      updateLoadMoreButton();
       return;
     }
 
-    grid.innerHTML = products.map(buildProductCard).join('');
+    grid.innerHTML = visibleProducts.slice(0, visibleCount).map(buildProductCard).join('');
     grid.style.display = '';
+    updateLoadMoreButton();
+  }
+
+  function showMoreProducts() {
+    const nextCount = Math.min(visibleCount + PAGE_SIZE, visibleProducts.length);
+    grid.insertAdjacentHTML('beforeend', visibleProducts.slice(visibleCount, nextCount).map(buildProductCard).join(''));
+    visibleCount = nextCount;
+    updateLoadMoreButton();
+  }
+
+  function updateLoadMoreButton() {
+    if (!loadMoreButton) return;
+    const remaining = visibleProducts.length - visibleCount;
+    loadMoreButton.hidden = remaining <= 0;
+    loadMoreButton.textContent = `Show ${Math.min(PAGE_SIZE, remaining)} more products`;
   }
 
   // ── Build one product card's HTML ─────────────────────────────
@@ -128,13 +151,13 @@
             </span>
           </div>
 
-          <button
-            class="btn btn--primary product-card__btn"
-            onclick="event.stopPropagation(); window.location.href='product.html?id=${product.id}'"
-            ${!inStock ? 'disabled' : ''}
-          >
-            ${inStock ? 'View Product' : 'Out of Stock'}
-          </button>
+          <div class="product-card__actions">
+            <button class="btn btn--primary product-card__btn" onclick="event.stopPropagation(); window.location.href='product.html?id=${product.id}'" ${!inStock ? 'disabled' : ''}>
+              ${inStock ? 'View Product' : 'Out of Stock'}
+            </button>
+            <button class="btn btn--outline product-card__btn" onclick="event.stopPropagation(); toggleWishlist(${product.id}, this)">♡ Wishlist</button>
+            <button class="btn btn--outline product-card__btn" onclick="event.stopPropagation(); toggleCompare(${product.id}, this)">Compare</button>
+          </div>
         </div>
       </article>
     `;
@@ -150,7 +173,7 @@
     )].sort();
 
     // Clear existing pills (keep the "All" button)
-    filterBar.innerHTML = `<button class="filter-btn active" data-category="all">All</button>`;
+    filterBar.innerHTML = `<button class="filter-btn active" data-category="all">All Products</button>`;
 
     categories.forEach(cat => {
       const btn = document.createElement('button');
@@ -187,7 +210,7 @@
       ? allProducts
       : allProducts.filter(p => p.category === category);
 
-    renderProducts(filtered);
+    renderProducts(filtered, category === 'all');
     setCountLabel(filtered.length, category);
   }
 

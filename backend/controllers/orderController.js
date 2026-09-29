@@ -138,4 +138,34 @@ const getOrderById = async (req, res) => {
   }
 };
 
-module.exports = { placeOrder, getUserOrders, getOrderById };
+const getOrderTracking = async (req, res, next) => {
+  try {
+    const orderId = parseInt(req.params.id, 10);
+    if (isNaN(orderId)) return res.status(400).json({ message: 'Invalid order ID.' });
+
+    const result = await db.query(
+      'SELECT id, status, created_at FROM orders WHERE id = ? AND user_id = ?',
+      [orderId, req.user.id]
+    );
+    const order = result.rows[0];
+    if (!order) return res.status(404).json({ message: 'Order not found.' });
+
+    const statuses = order.status === 'cancelled'
+      ? ['cancelled']
+      : ['pending', 'confirmed', 'shipped', 'delivered'];
+    const currentIndex = order.status === 'cancelled' ? 0 : statuses.indexOf(order.status);
+    const timeline = statuses.map((status, index) => ({
+      status,
+      completed: currentIndex >= index,
+      current: currentIndex === index,
+    }));
+    res.status(200).json({
+      success: true,
+      data: { order_id: order.id, status: order.status, created_at: order.created_at, timeline },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { placeOrder, getUserOrders, getOrderById, getOrderTracking };

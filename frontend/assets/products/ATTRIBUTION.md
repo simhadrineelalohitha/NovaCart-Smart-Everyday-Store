@@ -22,6 +22,14 @@ The following replacement photographs are used under their listed Creative Commo
 - `sunscreen-product-verified.jpg`: JeepersMedia, "Neutrogena Sunscreen", CC BY 2.0, https://creativecommons.org/licenses/by/2.0/
 - `nonstick-pan-product-verified.jpg`: QuietHut, "Frying pan nonstick coating", CC BY 2.0, https://creativecommons.org/licenses/by/2.0/
 - `lunch-box-product-verified.jpg`: Nanagyei, "Lunch Boxes", CC BY 2.0, https://creativecommons.org/licenses/by/2.0/
+- `beauty-personal-care-foundation.jpg`: Frankieleon, "cosmetic bag with makeup products", CC BY-SA 2.0, https://creativecommons.org/licenses/by-sa/2.0/
+- `beauty-personal-care-hair-oil.jpg`: Sanjay acharya, "Amla, hair oil", CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/
+- `beauty-personal-care-mascara.jpg`: cliff1066, "Vintage 80's Dial-a-Lash Mascara", CC BY 2.0, https://creativecommons.org/licenses/by/2.0/
+- `electrical-appliances-air-cooler.jpg`: Ranjithsiji, "Air cooler", CC BY-SA 2.0, https://creativecommons.org/licenses/by-sa/2.0/
+- `groceries-sugar.jpg`: Public Domain Photos, "Sugar", CC BY 2.0, https://creativecommons.org/licenses/by/2.0/
+- `home-kitchen-cleaning-brush.jpg`: Andreas Praefcke, "Cleaning Brush", CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/
+- `home-interior-decor-table-lamp.jpg`: Unsplash contributor, "Adjustable LED Desk Lamp", Unsplash License, https://unsplash.com/license
+- `stationery-office-whiteboard.jpg`: Lars P., "Laboratory whiteboard, featuring metaheuristics", CC BY-SA 2.0, https://creativecommons.org/licenses/by-sa/2.0/
 
 These are representative product-type photographs. The source spreadsheet does not include exact manufacturer or SKU images.
 

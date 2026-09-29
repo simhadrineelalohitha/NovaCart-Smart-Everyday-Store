@@ -9,6 +9,64 @@ const dbPath = path.resolve(__dirname, '..', process.env.DB_PATH || './novacart.
 const outputPath = path.resolve(__dirname, '../../frontend/assets/products/product-type-candidates.json');
 const mapOutputPath = path.resolve(__dirname, '../../frontend/assets/products/product-type-map.json');
 const ignoredWords = new Set(['and', 'for', 'with', 'set', 'kit', 'product', 'the', 'of']);
+const VERIFIED_IMAGE_SOURCES = {
+  'Beauty & Personal Care|Foundation': {
+    title: 'cosmetic bag with makeup products',
+    url: 'https://live.staticflickr.com/4155/33837052914_c8f745f012_b.jpg',
+    license: 'by-sa',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/2.0/',
+    creator: 'Frankieleon',
+  },
+  'Beauty & Personal Care|Hair Oil': {
+    title: 'Amla, hair oil',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/2/25/Amla%2C_hair_oil.JPG',
+    license: 'by-sa',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
+    creator: 'Sanjay acharya',
+  },
+  'Beauty & Personal Care|Mascara': {
+    title: "Vintage 80's Dial-a-Lash Mascara",
+    url: 'https://live.staticflickr.com/2200/2202691178_c8b0ca0098_b.jpg',
+    license: 'by',
+    licenseUrl: 'https://creativecommons.org/licenses/by/2.0/',
+    creator: 'cliff1066',
+  },
+  'Electrical Appliances|Air Cooler': {
+    title: 'Air cooler',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/8/84/Air_cooler.jpg',
+    license: 'by-sa',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/2.0/',
+    creator: 'Ranjithsiji',
+  },
+  'Groceries|Sugar': {
+    title: 'Sugar',
+    url: 'https://live.staticflickr.com/181/400591520_505d31ba6b.jpg',
+    license: 'by',
+    licenseUrl: 'https://creativecommons.org/licenses/by/2.0/',
+    creator: 'Public Domain Photos',
+  },
+  'Home & Kitchen|Cleaning Brush': {
+    title: 'Cleaning Brush',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/8/89/Cleaning_Brush.jpg',
+    license: 'by-sa',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
+    creator: 'Andreas Praefcke',
+  },
+  'Home Interior & Decor|Table Lamp': {
+    title: 'Adjustable LED Desk Lamp',
+    url: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=1200&q=85',
+    license: 'unsplash',
+    licenseUrl: 'https://unsplash.com/license',
+    creator: 'Unsplash contributor',
+  },
+  'Stationery & Office|Whiteboard': {
+    title: 'Laboratory whiteboard, featuring metaheuristics',
+    url: 'https://live.staticflickr.com/136/322161123_8c8aff4c9a_b.jpg',
+    license: 'by-sa',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/2.0/',
+    creator: 'Lars P.',
+  },
+};
 
 function words(value) {
   return [...new Set(String(value || '').toLowerCase().match(/[a-z0-9]+/g) || [])]
@@ -114,7 +172,8 @@ async function run() {
   for (const item of candidateData) {
     const phrase = normalizedPhrase(item.subcategory);
     const exactMatch = item.candidates.find(candidate => normalizedPhrase(candidate.title).includes(phrase));
-    if (!exactMatch) continue;
+    const verifiedSource = VERIFIED_IMAGE_SOURCES[`${item.category}|${item.subcategory}`];
+    if (!exactMatch && !verifiedSource) continue;
 
     const imageName = `${slug(item.category)}-${slug(item.subcategory)}.jpg`;
     const imagePath = `../assets/products/product-types/${imageName}`;
@@ -123,7 +182,7 @@ async function run() {
       category: item.category,
       subcategory: item.subcategory,
       imageName,
-      ...exactMatch,
+      ...(verifiedSource || exactMatch),
     });
   }
   fs.writeFileSync(mapOutputPath, `${JSON.stringify({ productTypeMap, imageSources }, null, 2)}\n`);

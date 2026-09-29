@@ -108,7 +108,7 @@
 
       <!-- Category filter pills -->
       <div class="filter-pills" id="filter-pills" role="group" aria-label="Filter by category">
-        <button class="pill active" data-category="all">All</button>
+        <button class="pill active" data-category="all">All Products</button>
         <!-- More pills injected by JS from API data -->
       </div>
 
@@ -180,6 +180,9 @@
 
       <!-- Live product grid -->
       <div class="product-grid" id="product-grid" role="list" style="display:none;"></div>
+      <button class="btn btn--outline product-load-more" id="load-more-products" type="button" aria-controls="product-grid" hidden>
+        Show more products
+      </button>
 
     </div>
   </main>
@@ -206,7 +209,7 @@
           <a href="products.html">All Products</a>
           <a href="products.html?category=Electronics">Electronics</a>
           <a href="products.html?category=Accessories">Accessories</a>
-          <a href="products.html?category=Home">Home</a>
+          <a href="products.html?category=Home%20%26%20Kitchen">Home &amp; Kitchen</a>
         </div>
         <div class="footer__col">
           <p class="footer__col-title">Account</p>
@@ -228,6 +231,7 @@
   </footer>
 
   <script src="../js/api.js"></script>
+  <script src="../js/engagement.js"></script>
   <script src="../js/navbar.js"></script>
   <script src="../js/productsPage.js"></script>
 

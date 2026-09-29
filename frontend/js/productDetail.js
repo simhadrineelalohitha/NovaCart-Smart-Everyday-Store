@@ -58,6 +58,8 @@
 
   // Cart + toast
   const cartBtn      = document.getElementById('pd-cart-btn');
+  const wishlistBtn  = document.getElementById('pd-wishlist-btn');
+  const compareBtn   = document.getElementById('pd-compare-btn');
   const toastEl      = document.getElementById('toast');
 
   // Product data (set after fetch)
@@ -73,6 +75,8 @@
     reviewLoginPrompt.hidden = isLoggedIn();
     reviewCta.href = isLoggedIn() ? '#review-form' : 'login.html';
     if (!isLoggedIn()) reviewCta.textContent = 'Log in to review';
+    if (wishlistBtn) wishlistBtn.addEventListener('click', () => toggleWishlist(currentProductId, wishlistBtn));
+    if (compareBtn) compareBtn.addEventListener('click', () => toggleCompare(currentProductId, compareBtn));
     const params = new URLSearchParams(window.location.search);
     const rawId  = params.get('id');
     currentProductId = rawId;
@@ -150,8 +154,13 @@
     const fallbackNote = document.createElement('small');
     fallbackNote.textContent = 'Image unavailable';
     imgFallback.append(fallbackCategory, fallbackInitial, fallbackNote);
+    imgEl.onload = () => { imgEl.hidden = false; imgFallback.hidden = true; };
     imgEl.onerror = () => { imgEl.hidden = true; imgFallback.hidden = false; };
-    if (p.image_url) imgEl.src = p.image_url;
+    if (p.image_url) {
+      imgEl.src = p.image_url;
+    } else {
+      imgEl.removeAttribute('src');
+    }
 
     // ── Text fields ────────────────────────────────────────────
     categoryEl.textContent = p.category || 'General';

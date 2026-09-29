@@ -7,7 +7,7 @@
 //   GET  /api/products          → list all (filter with ?category=)
 //   GET  /api/products/:id      → single product
 //
-// Admin routes (no auth protection yet — added in Stage 2):
+// Admin routes (require a valid admin user):
 //   POST   /api/products        → create product
 //   PUT    /api/products/:id    → update product
 //   DELETE /api/products/:id    → delete product
@@ -16,7 +16,7 @@
 const express           = require('express');
 const router            = express.Router();
 const productController = require('../controllers/productController');
-const { authenticate }  = require('../middleware/authMiddleware');
+const { authenticate, requireAdmin }  = require('../middleware/authMiddleware');
 
 // ── Public routes ─────────────────────────────────────────────
 
@@ -31,15 +31,15 @@ router.post('/:id/reviews', authenticate, productController.createProductReview)
 // GET /api/products/12
 router.get('/:id', productController.getProductById);
 
-// ── Admin routes (will add authenticate middleware in Stage 2) ─
+// ── Admin routes ──────────────────────────────────────────────
 
 // POST /api/products
-router.post('/', productController.createProduct);
+router.post('/', authenticate, requireAdmin, productController.createProduct);
 
 // PUT /api/products/12
-router.put('/:id', productController.updateProduct);
+router.put('/:id', authenticate, requireAdmin, productController.updateProduct);
 
 // DELETE /api/products/12
-router.delete('/:id', productController.deleteProduct);
+router.delete('/:id', authenticate, requireAdmin, productController.deleteProduct);
 
 module.exports = router;

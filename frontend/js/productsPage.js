@@ -24,6 +24,10 @@
   // STATE
   // ════════════════════════
   let allProducts = [];     // every product from the API, never mutated after fetch
+  let visibleProducts = [];
+  let visibleCount = 0;
+  let showAllProducts = false;
+  const PAGE_SIZE = 24;
   let state = {
     search:   '',
     category: 'all',
@@ -47,6 +51,7 @@
   const emptyDesc     = document.getElementById('empty-desc');
   const resultSummary = document.getElementById('result-summary');
   const toast         = document.getElementById('toast');
+  const loadMoreButton = document.getElementById('load-more-products');
 
   // ════════════════════════
   // BOOT
@@ -55,6 +60,7 @@
     readUrlParams();      // pre-populate state from URL (e.g. ?category=Electronics)
     loadProducts();       // fetch from API
     wireControls();       // attach event listeners to search/sort/clear
+    if (loadMoreButton) loadMoreButton.addEventListener('click', showMoreProducts);
   });
 
   // ════════════════════════
@@ -148,6 +154,7 @@
         const pill = e.target.closest('.pill');
         if (!pill) return;
         state.category = pill.dataset.category;
+        showAllProducts = state.category === 'all';
         syncPillState();
         applyFilters();
       });
@@ -201,7 +208,7 @@
     }
 
     // 4. Render
-    renderProducts(result);
+    renderProducts(result, showAllProducts);
     updateResultSummary(result.length);
     updateActiveChips();
     updateClearButton();
@@ -214,6 +221,7 @@
     state.search   = 'all' === state.category ? '' : '';
     state.category = 'all';
     state.sort     = 'default';
+    showAllProducts = true;
 
     if (searchInput)  searchInput.value = '';
     if (searchClear)  searchClear.style.display = 'none';
@@ -226,23 +234,47 @@
   // ════════════════════════
   // RENDER PRODUCTS
   // ════════════════════════
-  function renderProducts(products) {
+  function renderProducts(products, showAll = false) {
     hideSkeleton();
     hideError();
+    visibleProducts = products;
+    visibleCount = showAll ? visibleProducts.length : Math.min(PAGE_SIZE, visibleProducts.length);
 
     if (products.length === 0) {
       showEmpty();
+      updateLoadMoreButton();
       return;
     }
 
     hideEmpty();
-    productGrid.innerHTML = products.map(buildCard).join('');
+    productGrid.innerHTML = visibleProducts.slice(0, visibleCount).map(buildCard).join('');
     productGrid.style.display = '';
 
-    // Wire Add to Cart buttons after injecting HTML
-    productGrid.querySelectorAll('.product-card__btn--cart').forEach(btn => {
-      btn.addEventListener('click', handleAddToCart);
+    wireCartButtons(0);
+    updateLoadMoreButton();
+  }
+
+  function showMoreProducts() {
+    const nextCount = Math.min(visibleCount + PAGE_SIZE, visibleProducts.length);
+    const firstNewCard = productGrid.children.length;
+    productGrid.insertAdjacentHTML('beforeend', visibleProducts.slice(visibleCount, nextCount).map(buildCard).join(''));
+    visibleCount = nextCount;
+    wireCartButtons(firstNewCard);
+    updateLoadMoreButton();
+  }
+
+  function wireCartButtons(firstCardIndex) {
+    Array.from(productGrid.children).slice(firstCardIndex).forEach(card => {
+      const button = card.querySelector('.product-card__btn--cart');
+      if (button) button.addEventListener('click', handleAddToCart);
     });
+  }
+
+  function updateLoadMoreButton() {
+    if (!loadMoreButton) return;
+    const remaining = visibleProducts.length - visibleCount;
+    loadMoreButton.hidden = remaining <= 0;
+    loadMoreButton.textContent = `Show ${Math.min(PAGE_SIZE, remaining)} more products`;
   }
 
   // ════════════════════════
@@ -311,6 +343,8 @@
             ${!inStock ? 'disabled' : ''}
             aria-label="Add ${safeName} to cart"
           >${inStock ? 'Add to Cart' : 'Unavailable'}</button>
+          <button class="product-card__btn" onclick="event.stopPropagation(); toggleWishlist(${safeId}, this)">♡ Wishlist</button>
+          <button class="product-card__btn" onclick="event.stopPropagation(); toggleCompare(${safeId}, this)">Compare</button>
         </div>
 
       </article>
@@ -387,6 +421,7 @@
     if (state.category !== 'all') {
       activeChips.appendChild(makeChip(`Category: ${state.category}`, () => {
         state.category = 'all';
+        showAllProducts = true;
         syncPillState();
         applyFilters();
       }));

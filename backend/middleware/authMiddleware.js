@@ -10,6 +10,7 @@
 //   Authorization: Bearer <token>
 
 const jwt = require('jsonwebtoken');
+const db = require('../config/db');
 
 const authenticate = (req, res, next) => {
   // 1. Read the Authorization header
@@ -42,4 +43,17 @@ const authenticate = (req, res, next) => {
   }
 };
 
-module.exports = { authenticate };
+const requireAdmin = async (req, res, next) => {
+  try {
+    const result = await db.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+    if (!result.rows[0] || result.rows[0].role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden', message: 'Administrator access is required.' });
+    }
+    req.user.role = 'admin';
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { authenticate, requireAdmin };

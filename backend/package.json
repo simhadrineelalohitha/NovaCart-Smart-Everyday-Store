@@ -9,6 +9,7 @@
     "db:init": "node scripts/initDb.js",
     "db:seed": "node scripts/seedDb.js",
     "db:import": "node scripts/importProducts.js",
+    "db:set-role": "node scripts/setUserRole.js",
     "db:migrate:sqlite": "node scripts/migrateSqliteToPostgres.js"
   },
   "keywords": [

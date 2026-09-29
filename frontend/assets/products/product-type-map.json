@@ -1,6 +1,7 @@
 {
   "productTypeMap": {
     "Accessories|Backpack": "../assets/products/product-types/accessories-backpack.jpg",
+    "Accessories|Belt": "../assets/products/product-types/accessories-belt.jpg",
     "Accessories|Cable Organizer": "../assets/products/product-types/accessories-cable-organizer.jpg",
     "Accessories|Keychain": "../assets/products/product-types/accessories-keychain.jpg",
     "Accessories|Laptop Sleeve": "../assets/products/product-types/accessories-laptop-sleeve.jpg",
@@ -11,10 +12,13 @@
     "Automotive|Car Air Freshener": "../assets/products/product-types/automotive-car-air-freshener.jpg",
     "Automotive|Car Cover": "../assets/products/product-types/automotive-car-cover.jpg",
     "Automotive|Car Phone Holder": "../assets/products/product-types/automotive-car-phone-holder.jpg",
+    "Automotive|Car Sun Shade": "../assets/products/product-types/automotive-car-sun-shade.jpg",
     "Automotive|Emergency Tool Kit": "../assets/products/product-types/automotive-emergency-tool-kit.jpg",
     "Automotive|LED Car Bulb": "../assets/products/product-types/automotive-led-car-bulb.jpg",
     "Automotive|Microfiber Towel": "../assets/products/product-types/automotive-microfiber-towel.jpg",
     "Automotive|Seat Cover": "../assets/products/product-types/automotive-seat-cover.jpg",
+    "Automotive|Steering Cover": "../assets/products/product-types/automotive-steering-cover.jpg",
+    "Automotive|Tyre Inflator": "../assets/products/product-types/automotive-tyre-inflator.jpg",
     "Baby Products|Baby Bib": "../assets/products/product-types/baby-products-baby-bib.jpg",
     "Baby Products|Baby Blanket": "../assets/products/product-types/baby-products-baby-blanket.jpg",
     "Baby Products|Baby Bottle": "../assets/products/product-types/baby-products-baby-bottle.jpg",
@@ -166,6 +170,7 @@
     "Pet Supplies|Pet Bed": "../assets/products/product-types/pet-supplies-pet-bed.jpg",
     "Pet Supplies|Pet Bowl": "../assets/products/product-types/pet-supplies-pet-bowl.jpg",
     "Pet Supplies|Pet Brush": "../assets/products/product-types/pet-supplies-pet-brush.jpg",
+    "Pet Supplies|Pet Shampoo": "../assets/products/product-types/pet-supplies-pet-shampoo.jpg",
     "Stationery & Office|Ball Pen": "../assets/products/product-types/stationery-office-ball-pen.jpg",
     "Stationery & Office|Calculator": "../assets/products/product-types/stationery-office-calculator.jpg",
     "Stationery & Office|Desk Calendar": "../assets/products/product-types/stationery-office-desk-calendar.jpg",
@@ -186,6 +191,7 @@
     "Stationery & Office|Stapler": "../assets/products/product-types/stationery-office-stapler.jpg",
     "Stationery & Office|Sticky Notes": "../assets/products/product-types/stationery-office-sticky-notes.jpg",
     "Stationery & Office|Whiteboard": "../assets/products/product-types/stationery-office-whiteboard.jpg",
+    "Tools & Hardware|Adjustable Wrench": "../assets/products/product-types/tools-hardware-adjustable-wrench.jpg",
     "Tools & Hardware|Allen Key Set": "../assets/products/product-types/tools-hardware-allen-key-set.jpg",
     "Tools & Hardware|Drill Bit Set": "../assets/products/product-types/tools-hardware-drill-bit-set.jpg",
     "Tools & Hardware|Electrical Tape": "../assets/products/product-types/tools-hardware-electrical-tape.jpg",
@@ -201,13 +207,16 @@
     "Toys|Plush Toy": "../assets/products/product-types/toys-plush-toy.jpg",
     "Toys|Puzzle Set": "../assets/products/product-types/toys-puzzle-set.jpg",
     "Toys|Remote Control Car": "../assets/products/product-types/toys-remote-control-car.jpg",
+    "Toys|Toy Kitchen Set": "../assets/products/product-types/toys-toy-kitchen-set.jpg",
     "Travel|Eye Mask": "../assets/products/product-types/travel-eye-mask.jpg",
     "Travel|Luggage Cover": "../assets/products/product-types/travel-luggage-cover.jpg",
     "Travel|Luggage Tag": "../assets/products/product-types/travel-luggage-tag.jpg",
     "Travel|Neck Pillow": "../assets/products/product-types/travel-neck-pillow.jpg",
+    "Travel|Passport Holder": "../assets/products/product-types/travel-passport-holder.jpg",
     "Travel|Toiletry Bag": "../assets/products/product-types/travel-toiletry-bag.jpg",
     "Travel|Travel Adapter": "../assets/products/product-types/travel-travel-adapter.jpg",
-    "Travel|Travel Bag": "../assets/products/product-types/travel-travel-bag.jpg"
+    "Travel|Travel Bag": "../assets/products/product-types/travel-travel-bag.jpg",
+    "Travel|Travel Lock": "../assets/products/product-types/travel-travel-lock.jpg"
   },
   "imageSources": [
     {
@@ -219,6 +228,17 @@
       "license": "by",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
       "creator": "slgckgc",
+      "score": 1
+    },
+    {
+      "category": "Accessories",
+      "subcategory": "Belt",
+      "imageName": "accessories-belt.jpg",
+      "title": "Chastity Belt",
+      "url": "https://live.staticflickr.com/2189/2362474745_d1f1488cc5_b.jpg",
+      "license": "by",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "creator": "mark6mauno",
       "score": 1
     },
     {
@@ -333,6 +353,17 @@
     },
     {
       "category": "Automotive",
+      "subcategory": "Car Sun Shade",
+      "imageName": "automotive-car-sun-shade.jpg",
+      "title": "Car sun shade",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Car_sun_shade.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "LastDeer",
+      "score": 1
+    },
+    {
+      "category": "Automotive",
       "subcategory": "Emergency Tool Kit",
       "imageName": "automotive-emergency-tool-kit.jpg",
       "title": "emergency tool kit",
@@ -346,11 +377,11 @@
       "category": "Automotive",
       "subcategory": "LED Car Bulb",
       "imageName": "automotive-led-car-bulb.jpg",
-      "title": "Car Blinker Light: LED Bulb (Animated GIF)",
-      "url": "https://live.staticflickr.com/65535/48086277296_603ce0d831.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "mah_japan",
+      "title": "Led car bulbs",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Led_car_bulbs.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Sebacalka",
       "score": 1
     },
     {
@@ -373,6 +404,28 @@
       "license": "by-sa",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
       "creator": "UCFThoughts",
+      "score": 1
+    },
+    {
+      "category": "Automotive",
+      "subcategory": "Steering Cover",
+      "imageName": "automotive-steering-cover.jpg",
+      "title": "Car steering cover image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Car_steering_cover_image.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "3ptechies",
+      "score": 1
+    },
+    {
+      "category": "Automotive",
+      "subcategory": "Tyre Inflator",
+      "imageName": "automotive-tyre-inflator.jpg",
+      "title": "Digital tyre inflator in the BP filling station, Malpas, Newport - geograph.org.uk - 4788417",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/98/Digital_tyre_inflator_in_the_BP_filling_station%2C_Malpas%2C_Newport_-_geograph.org.uk_-_4788417.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "creator": "Jaggery",
       "score": 1
     },
     {
@@ -423,22 +476,22 @@
       "category": "Baby Products",
       "subcategory": "Baby Feeding Spoon",
       "imageName": "baby-products-baby-feeding-spoon.jpg",
-      "title": "Spoon-feeding baby Bela",
-      "url": "https://live.staticflickr.com/3625/3447705526_547fda8682_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "Noam, Jemima & Lila",
+      "title": "Baby feeding - spoon and bowl",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Baby_feeding_-_spoon_and_bowl.jpg",
+      "license": "cc0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/",
+      "creator": "MAKY.OREL",
       "score": 1
     },
     {
       "category": "Baby Products",
       "subcategory": "Baby Rattle",
       "imageName": "baby-products-baby-rattle.jpg",
-      "title": "Banana Baby Rattle Cupcakes",
-      "url": "https://live.staticflickr.com/4072/4501595310_3a97a85203_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "tawest64",
+      "title": "Plastic baby rattle toy 2",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Plastic_baby_rattle_toy_2.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Zeromonk",
       "score": 1
     },
     {
@@ -588,12 +641,11 @@
       "category": "Beauty & Personal Care",
       "subcategory": "Foundation",
       "imageName": "beauty-personal-care-foundation.jpg",
-      "title": "Education Programs - Hashoo Foundation",
-      "url": "https://live.staticflickr.com/6159/6206446354_0397ea6f46_b.jpg",
+      "title": "cosmetic bag with makeup products",
+      "url": "https://live.staticflickr.com/4155/33837052914_c8f745f012_b.jpg",
       "license": "by-sa",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "creator": "Hashoo Foundation USA - Houston, TX",
-      "score": 1
+      "creator": "Frankieleon"
     },
     {
       "category": "Beauty & Personal Care",
@@ -610,12 +662,11 @@
       "category": "Beauty & Personal Care",
       "subcategory": "Hair Oil",
       "imageName": "beauty-personal-care-hair-oil.jpg",
-      "title": "Vacuum Harness Oil renders everything soft and pliable. Hans, your mudder says she wants some hair oil: give her dat already, unt maybe it makes her more soft unt bilable, ain't it? (back)",
-      "url": "https://live.staticflickr.com/8236/8558170492_17310b4b63_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "Boston Public Library",
-      "score": 1
+      "title": "Amla, hair oil",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/Amla%2C_hair_oil.JPG",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Sanjay acharya"
     },
     {
       "category": "Beauty & Personal Care",
@@ -665,12 +716,11 @@
       "category": "Beauty & Personal Care",
       "subcategory": "Mascara",
       "imageName": "beauty-personal-care-mascara.jpg",
-      "title": "Mexico: Mascaras de Lucha Libre (Wrestling masks with Creative Commons Attribution-Share Alike License)",
-      "url": "https://live.staticflickr.com/3100/3090304192_20e45f15f4.jpg",
-      "license": "by-sa",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "creator": "planeta",
-      "score": 1
+      "title": "Vintage 80's Dial-a-Lash Mascara",
+      "url": "https://live.staticflickr.com/2200/2202691178_c8b0ca0098_b.jpg",
+      "license": "by",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "creator": "cliff1066"
     },
     {
       "category": "Beauty & Personal Care",
@@ -731,22 +781,21 @@
       "category": "Electrical Appliances",
       "subcategory": "Air Cooler",
       "imageName": "electrical-appliances-air-cooler.jpg",
-      "title": "Air cooler opening at my computer.",
-      "url": "https://live.staticflickr.com/3672/33492139861_1e128fff10_b.jpg",
+      "title": "Air cooler",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/84/Air_cooler.jpg",
       "license": "by-sa",
       "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "creator": "driver Photographer",
-      "score": 1
+      "creator": "Ranjithsiji"
     },
     {
       "category": "Electrical Appliances",
       "subcategory": "Electric Kettle",
       "imageName": "electrical-appliances-electric-kettle.jpg",
-      "title": "Reflection of a Toaster on an Electric Kettle",
-      "url": "https://live.staticflickr.com/8432/7853607814_41755dc873_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "zeevveez",
+      "title": "Electric kettle - Электрический чайник",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Electric_kettle_-_%D0%AD%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D1%87%D0%B0%D0%B9%D0%BD%D0%B8%D0%BA.JPG",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Schekinov Alexey Victorovich",
       "score": 1
     },
     {
@@ -764,11 +813,11 @@
       "category": "Electrical Appliances",
       "subcategory": "Induction Cooktop",
       "imageName": "electrical-appliances-induction-cooktop.jpg",
-      "title": "GE PHP960DMBB Profile 36' Black Electric Induction Cooktop",
-      "url": "https://live.staticflickr.com/2770/12992718893_fd5f888d3c_m.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "Goedeker's",
+      "title": "Induction Cooktop Rolling Boil",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Induction_Cooktop_Rolling_Boil.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Wtshymanski (talk).",
       "score": 1
     },
     {
@@ -885,11 +934,11 @@
       "category": "Electronics",
       "subcategory": "Power Bank",
       "imageName": "electronics-power-bank.jpg",
-      "title": "#Lepow Moonstone akku power bank",
-      "url": "https://live.staticflickr.com/7554/15266648003_847cc1565a.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "ThomasKohler",
+      "title": "Portable power bank",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Portable_power_bank.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Santeri Viinamäki",
       "score": 1
     },
     {
@@ -1171,11 +1220,11 @@
       "category": "Fitness & Sports",
       "subcategory": "Cricket Ball",
       "imageName": "fitness-sports-cricket-ball.jpg",
-      "title": "Cricket Ball.",
-      "url": "https://live.staticflickr.com/2790/4398962599_ba78a3b2c0_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "Luke Hayfield Photography",
+      "title": "Cricket ball",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Cricket_ball.svg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Mrpatsy",
       "score": 1
     },
     {
@@ -1391,11 +1440,11 @@
       "category": "Gardening",
       "subcategory": "Plant Stand",
       "imageName": "gardening-plant-stand.jpg",
-      "title": "An indoor plant stand from Nordiska Museet - Stockholm's museum of Swedish design and folk tradition",
-      "url": "https://live.staticflickr.com/3810/9363756234_03473f90cb_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "justin",
+      "title": "Gypsum plant stand",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/86/Gypsum_plant_stand.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "",
       "score": 1
     },
     {
@@ -1501,12 +1550,11 @@
       "category": "Groceries",
       "subcategory": "Sugar",
       "imageName": "groceries-sugar.jpg",
-      "title": "Google Street View - Pan-American Trek - Sugar factory",
-      "url": "https://live.staticflickr.com/3855/14322627830_43220d443e_b.jpg",
+      "title": "Sugar",
+      "url": "https://live.staticflickr.com/181/400591520_505d31ba6b.jpg",
       "license": "by",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "kevin dooley",
-      "score": 1
+      "creator": "Public Domain Photos"
     },
     {
       "category": "Groceries",
@@ -1545,12 +1593,11 @@
       "category": "Home & Kitchen",
       "subcategory": "Cleaning Brush",
       "imageName": "home-kitchen-cleaning-brush.jpg",
-      "title": "Cleaning brush for endoscope channel",
-      "url": "https://live.staticflickr.com/6201/6067756723_deac72d39f.jpg",
+      "title": "Cleaning Brush",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Cleaning_Brush.jpg",
       "license": "by-sa",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "creator": "jill570641",
-      "score": 1
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Andreas Praefcke"
     },
     {
       "category": "Home & Kitchen",
@@ -1633,11 +1680,11 @@
       "category": "Home Interior & Decor",
       "subcategory": "Artificial Plant",
       "imageName": "home-interior-decor-artificial-plant.jpg",
-      "title": "Artificial plants on front fence of 10 Agnes Avenue in Greythorn, North Balwyn",
-      "url": "https://live.staticflickr.com/65535/54270791874_f0a2883192_b.jpg",
+      "title": "Fishes, multicolored pebbles and artificial plants within an aquarium",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Fishes%2C_multicolored_pebbles_and_artificial_plants_within_an_aquarium.jpg",
       "license": "by-sa",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "creator": "philip.mallis",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Billjones94",
       "score": 1
     },
     {
@@ -1809,12 +1856,11 @@
       "category": "Home Interior & Decor",
       "subcategory": "Table Lamp",
       "imageName": "home-interior-decor-table-lamp.jpg",
-      "title": "The living room sofa, brightly colored pillows, table, lamps, and art, staged Craftsman house, U District, Seattle, Washington, USA",
-      "url": "https://live.staticflickr.com/4103/5027516478_4df939c735_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "Wonderlane",
-      "score": 1
+      "title": "Adjustable LED Desk Lamp",
+      "url": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=1200&q=85",
+      "license": "unsplash",
+      "licenseUrl": "https://unsplash.com/license",
+      "creator": "Unsplash contributor"
     },
     {
       "category": "Home Interior & Decor",
@@ -2037,6 +2083,17 @@
       "score": 1
     },
     {
+      "category": "Pet Supplies",
+      "subcategory": "Pet Shampoo",
+      "imageName": "pet-supplies-pet-shampoo.jpg",
+      "title": "Pet shampoo virgin coconut oil Gliricidia sepium4",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/58/Pet_shampoo_virgin_coconut_oil_Gliricidia_sepium4.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "",
+      "score": 1
+    },
+    {
       "category": "Stationery & Office",
       "subcategory": "Ball Pen",
       "imageName": "stationery-office-ball-pen.jpg",
@@ -2139,11 +2196,11 @@
       "category": "Stationery & Office",
       "subcategory": "Marker Set",
       "imageName": "stationery-office-marker-set.jpg",
-      "title": "Holland Community marker setting",
-      "url": "https://live.staticflickr.com/5588/14571494970_53e86c2350_b.jpg",
+      "title": "The Chamber of Commerce of the Philippine Islands Historical Marker (Set)",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/02/The_Chamber_of_Commerce_of_the_Philippine_Islands_Historical_Marker_%28Set%29.jpg",
       "license": "by-sa",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "creator": "QuesterMark",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Kej Andrés (Ryomaandres)",
       "score": 1
     },
     {
@@ -2249,33 +2306,43 @@
       "category": "Stationery & Office",
       "subcategory": "Whiteboard",
       "imageName": "stationery-office-whiteboard.jpg",
-      "title": "Whiteboard pen",
-      "url": "https://live.staticflickr.com/7212/7349701446_3ab6126bb6_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "James Bowe",
+      "title": "Laboratory whiteboard, featuring metaheuristics",
+      "url": "https://live.staticflickr.com/136/322161123_8c8aff4c9a_b.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "creator": "Lars P."
+    },
+    {
+      "category": "Tools & Hardware",
+      "subcategory": "Adjustable Wrench",
+      "imageName": "tools-hardware-adjustable-wrench.jpg",
+      "title": "Tweedy and Popp - hand-forged adjustable wrench",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/45/Tweedy_and_Popp_-_hand-forged_adjustable_wrench.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Joe Mabel",
       "score": 1
     },
     {
       "category": "Tools & Hardware",
       "subcategory": "Allen Key Set",
       "imageName": "tools-hardware-allen-key-set.jpg",
-      "title": "No allen key required #2",
-      "url": "https://live.staticflickr.com/2454/3592537313_d13550f2b3_b.jpg",
+      "title": "Folding Allen key set",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Folding_Allen_key_set.jpg",
       "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "Brett Jordan",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "creator": "Andrew Plumb",
       "score": 1
     },
     {
       "category": "Tools & Hardware",
       "subcategory": "Drill Bit Set",
       "imageName": "tools-hardware-drill-bit-set.jpg",
-      "title": "Milwaukee 60 piece drill bit set",
-      "url": "https://live.staticflickr.com/65535/51634742825_633df69c14_b.jpg",
+      "title": "2010-01-21 Craftsman Professional cobalt drill bit set",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/2010-01-21_Craftsman_Professional_cobalt_drill_bit_set.jpg",
       "license": "by-sa",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "creator": "Puddin Tain",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Ildar Sagdejev (Specious)",
       "score": 1
     },
     {
@@ -2337,11 +2404,11 @@
       "category": "Tools & Hardware",
       "subcategory": "Screwdriver Set",
       "imageName": "tools-hardware-screwdriver-set.jpg",
-      "title": "Screwdriver-Set-222523-480x360",
-      "url": "https://live.staticflickr.com/4143/4904404681_1c6038555e.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "Public Domain Photos",
+      "title": "Robertson screwdriver set",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Robertson_screwdriver_set.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/ca/deed.en/",
+      "creator": "Luigi Zanasi",
       "score": 1
     },
     {
@@ -2403,11 +2470,11 @@
       "category": "Toys",
       "subcategory": "Puzzle Set",
       "imageName": "toys-puzzle-set.jpg",
-      "title": "Chess Middlegame Puzzle - 20",
-      "url": "https://live.staticflickr.com/6045/5906099870_346b491b49.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "ChessNetwork",
+      "title": "<div class='fn'> 3-teiliges Puzzle-Set</div>",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/CH-KBAR_-_3-teiliges_Puzzle-Set_-_KB-025524.tif",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "",
       "score": 1
     },
     {
@@ -2419,6 +2486,17 @@
       "license": "by",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
       "creator": "David Masters",
+      "score": 1
+    },
+    {
+      "category": "Toys",
+      "subcategory": "Toy Kitchen Set",
+      "imageName": "toys-toy-kitchen-set.jpg",
+      "title": "Children-play-toy-kitchen-set-Teddy-Girl-Birthday-Cake-fruit-cutting-simulation-DIY-fruit-cake-model",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Children-play-toy-kitchen-set-Teddy-Girl-Birthday-Cake-fruit-cutting-simulation-DIY-fruit-cake-model.jpg",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Unknown authorUnknown author",
       "score": 1
     },
     {
@@ -2458,11 +2536,22 @@
       "category": "Travel",
       "subcategory": "Neck Pillow",
       "imageName": "travel-neck-pillow.jpg",
-      "title": "Travel Neck Pillow and bag",
-      "url": "https://live.staticflickr.com/8334/8357561271_c3fa2ab2a4_b.jpg",
-      "license": "by",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-      "creator": "DanaK~WaterPenny",
+      "title": "Panda shaped neck pillow",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Panda_shaped_neck_pillow.JPG",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Teemeah",
+      "score": 1
+    },
+    {
+      "category": "Travel",
+      "subcategory": "Passport Holder",
+      "imageName": "travel-passport-holder.jpg",
+      "title": "Visa requirements for Turkish Special Passport Holders",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Visa_requirements_for_Turkish_Special_Passport_Holders.svg",
+      "license": "cc0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en/",
+      "creator": "Kurmanbek",
       "score": 1
     },
     {
@@ -2496,6 +2585,17 @@
       "license": "by",
       "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
       "creator": "ingermaaike2",
+      "score": 1
+    },
+    {
+      "category": "Travel",
+      "subcategory": "Travel Lock",
+      "imageName": "travel-travel-lock.jpg",
+      "title": "JGSDF M4A3E8 gun travel lock right front view at Camp Tsuchiura September 28, 2025",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/JGSDF_M4A3E8_gun_travel_lock_right_front_view_at_Camp_Tsuchiura_September_28%2C_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "license": "by-sa",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "creator": "Hunini",
       "score": 1
     }
   ]

@@ -16,6 +16,8 @@ const authRoutes    = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes    = require('./routes/cartRoutes');
 const orderRoutes   = require('./routes/orderRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
+const compareRoutes  = require('./routes/compareRoutes');
 
 // Create the Express application
 const app  = express();
@@ -69,6 +71,8 @@ app.use('/api/auth',     authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart',     cartRoutes);
 app.use('/api/orders',   orderRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/compare',  compareRoutes);
 
 // Serve the frontend from this server so the app has one local URL.
 app.get('/', (_req, res) => res.redirect('/pages/index.html'));
@@ -95,6 +99,7 @@ app.use((err, req, res, next) => {
 });
 
 async function startServer() {
+  await db.ensureSchema();
   await db.testConnection();
   console.log(`Database connection ready (${db.isPostgres ? 'PostgreSQL' : 'SQLite'}).`);
 

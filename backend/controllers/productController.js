@@ -15,9 +15,15 @@
 const productModel = require('../models/productModel');
 const productReviewModel = require('../models/productReviewModel');
 
-// ── Valid categories ───────────────────────────────────────────
-// Centralised here so routes + validation always use the same list.
-const VALID_CATEGORIES = ['Electronics', 'Accessories', 'Home', 'Lifestyle'];
+// ── Category validation ────────────────────────────────────────
+// Categories are labels from the catalog, not a fixed enum.
+const MAX_CATEGORY_LENGTH = 100;
+
+function isValidCategory(category) {
+  return typeof category === 'string'
+    && category.trim().length > 0
+    && category.trim().length <= MAX_CATEGORY_LENGTH;
+}
 
 // ════════════════════════════════════════════════════════════════
 // VALIDATION HELPER
@@ -60,8 +66,8 @@ function validateProduct(body, requireAll = false) {
 
   // ── category ────────────────────────────────────────────────
   if (requireAll || category !== undefined) {
-    if (!category || !VALID_CATEGORIES.includes(category)) {
-      errors.push(`category is required and must be one of: ${VALID_CATEGORIES.join(', ')}.`);
+    if (!isValidCategory(category)) {
+      errors.push(`category is required and must be a non-empty string up to ${MAX_CATEGORY_LENGTH} characters.`);
     }
   }
 
@@ -83,17 +89,16 @@ function validateProduct(body, requireAll = false) {
 // Always returns an array — empty array if no products exist.
 const getAllProducts = async (req, res, next) => {
   try {
-    const { category } = req.query;
+    const requestedCategory = req.query.category;
 
-    // If a category filter was given, validate it
-    if (category && !VALID_CATEGORIES.includes(category)) {
+    if (requestedCategory !== undefined && !isValidCategory(requestedCategory)) {
       return res.status(400).json({
         error:      'Invalid category',
-        message:    `Category must be one of: ${VALID_CATEGORIES.join(', ')}.`,
-        categories: VALID_CATEGORIES,
+        message:    `Category must be a non-empty string up to ${MAX_CATEGORY_LENGTH} characters.`,
       });
     }
 
+    const category = typeof requestedCategory === 'string' ? requestedCategory.trim() : undefined;
     const products = await productModel.getAllProducts(category);
 
     res.status(200).json({
@@ -212,7 +217,7 @@ const createProductReview = async (req, res, next) => {
 // Creates a new product. All required fields must be present.
 // Returns 201 Created with the newly inserted product.
 //
-// NOTE: In a real app this would be protected (admin only).
+// Access is restricted to authenticated administrators by productRoutes.js.
 //       Auth middleware will be wired in Stage 2.
 const createProduct = async (req, res, next) => {
   try {
@@ -233,7 +238,7 @@ const createProduct = async (req, res, next) => {
       description: description ? description.trim() : null,
       price:       Number(price),
       image_url:   image_url   ? image_url.trim() : null,
-      category,
+      category:    category.trim(),
       stock:       Number(stock),
     });
 
@@ -254,7 +259,7 @@ const createProduct = async (req, res, next) => {
 // Updates an existing product. Only fields you send will change.
 // Returns the full updated product row.
 //
-// NOTE: In a real app this would be protected (admin only).
+// Access is restricted to authenticated administrators by productRoutes.js.
 const updateProduct = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -299,7 +304,7 @@ const updateProduct = async (req, res, next) => {
       description: description ? description.trim() : description,
       price:       price       !== undefined ? Number(price)  : undefined,
       image_url:   image_url   ? image_url.trim()   : image_url,
-      category,
+      category:    category !== undefined ? category.trim() : undefined,
       stock:       stock       !== undefined ? Number(stock)  : undefined,
     });
 

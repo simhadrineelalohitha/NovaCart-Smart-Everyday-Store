@@ -17,7 +17,7 @@ const db     = require('../config/db');
 // Helper — sign a JWT for a user
 function signToken(user) {
   return jwt.sign(
-    { id: user.id, name: user.name, email: user.email },
+    { id: user.id, name: user.name, email: user.email, role: user.role || 'user' },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
@@ -49,7 +49,7 @@ const register = async (req, res) => {
 
     // Insert the new user
     const result = await db.query(
-      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?) RETURNING id, name, email',
+      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?) RETURNING id, name, email, role',
       [name.trim(), email.toLowerCase().trim(), password_hash]
     );
 
@@ -88,7 +88,7 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    const safeUser = { id: user.id, name: user.name, email: user.email };
+    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role || 'user' };
     const token    = signToken(safeUser);
 
     res.status(200).json({ success: true, message: 'Login successful.', token, user: safeUser });
