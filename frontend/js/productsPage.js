@@ -3,13 +3,13 @@
 // ════════════════════════════════════════════════════════════════
 //
 // What this file does (in order):
-//   1. On page load, fetch all products from GET /api/products
+//   1. On page load, fetch categories and the first product page
 //   2. Read URL query params (?category=X&sort=Y&q=Z) — so links
 //      from other pages can pre-filter this page
 //   3. Build category filter pills from the product data
-//   4. Handle search (with 300ms debounce so it feels instant)
+//   4. Handle server-side search (with 300ms debounce)
 //   5. Handle category filter pills (no reload)
-//   6. Handle sort dropdown (no reload)
+//   6. Handle server-side sort (no reload)
 //   7. Show / hide "Clear filters" button and active chips
 //   8. Render product cards with View Details + Add to Cart
 //   9. "Add to Cart" stores to localStorage and shows a toast
@@ -23,11 +23,10 @@
   // ════════════════════════
   // STATE
   // ════════════════════════
-  let allProducts = [];     // every product from the API, never mutated after fetch
-  let visibleProducts = [];
-  let visibleCount = 0;
-  let showAllProducts = false;
   const PAGE_SIZE = 24;
+  let currentPage = 1;
+  let totalProducts = 0;
+  let requestSequence = 0;
   let state = {
     search:   '',
     category: 'all',
@@ -90,15 +89,10 @@
     showSkeleton();
 
     try {
-      const response = await api.get('/products');
-      // Our API returns { success, count, data }
-      allProducts = Array.isArray(response.data) ? response.data
-                  : Array.isArray(response)       ? response
-                  : [];
-
-      buildCategoryPills(allProducts);
+      const response = await api.get('/products/categories');
+      buildCategoryPills(Array.isArray(response.data) ? response.data : []);
       syncPillState();          // highlight the pre-selected pill (from URL)
-      applyFilters();           // render filtered view
+      await applyFilters();     // render the first matching page
 
     } catch (err) {
       showError(
@@ -154,7 +148,6 @@
         const pill = e.target.closest('.pill');
         if (!pill) return;
         state.category = pill.dataset.category;
-        showAllProducts = state.category === 'all';
         syncPillState();
         applyFilters();
       });
@@ -171,57 +164,48 @@
   // ════════════════════════
   // This is the heart of the page — called every time any control changes.
   // It never makes a new API call; it works entirely on allProducts in memory.
-  function applyFilters() {
-    let result = [...allProducts];
+  async function applyFilters(page = 1, append = false) {
+    const requestId = ++requestSequence;
+    if (!append) showSkeleton();
 
-    // 1. Search — match name OR description
-    if (state.search) {
-      const q = state.search.toLowerCase();
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        (p.description && p.description.toLowerCase().includes(q))
-      );
+    const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE), sort: state.sort });
+    if (state.category !== 'all') params.set('category', state.category);
+    if (state.search) params.set('q', state.search);
+
+    try {
+      const response = await api.get(`/products?${params.toString()}`);
+      if (requestId !== requestSequence) return;
+      const products = Array.isArray(response.data) ? response.data : [];
+      totalProducts = Number(response.count) || 0;
+      currentPage = Number(response.page) || page;
+
+      if (append) {
+        productGrid.insertAdjacentHTML('beforeend', products.map(buildCard).join(''));
+        wireCartButtons(productGrid.children.length - products.length);
+        if (!products.length && productGrid.children.length === 0) showEmpty();
+      } else {
+        renderProducts(products);
+      }
+
+      updateResultSummary(totalProducts);
+      updateActiveChips();
+      updateClearButton();
+      updateLoadMoreButton();
+    } catch (err) {
+      if (requestId === requestSequence) {
+        showError(`Could not connect to the server.<br/><small>Details: ${escapeHtml(err.message)}</small>`);
+        console.error('[NovaCart] Product fetch failed:', err);
+      }
     }
-
-    // 2. Category filter
-    if (state.category !== 'all') {
-      result = result.filter(p => p.category === state.category);
-    }
-
-    // 3. Sort
-    switch (state.sort) {
-      case 'price-asc':
-        result.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-        break;
-      case 'price-desc':
-        result.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-        break;
-      case 'name-asc':
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'name-desc':
-        result.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      default:
-        // Keep original API order (newest first from the backend)
-        break;
-    }
-
-    // 4. Render
-    renderProducts(result, showAllProducts);
-    updateResultSummary(result.length);
-    updateActiveChips();
-    updateClearButton();
   }
 
   // Expose for the empty-state button
   window.clearAllFilters = clearAllFilters;
 
   function clearAllFilters() {
-    state.search   = 'all' === state.category ? '' : '';
+    state.search   = '';
     state.category = 'all';
     state.sort     = 'default';
-    showAllProducts = true;
 
     if (searchInput)  searchInput.value = '';
     if (searchClear)  searchClear.style.display = 'none';
@@ -234,33 +218,24 @@
   // ════════════════════════
   // RENDER PRODUCTS
   // ════════════════════════
-  function renderProducts(products, showAll = false) {
+  function renderProducts(products) {
     hideSkeleton();
     hideError();
-    visibleProducts = products;
-    visibleCount = showAll ? visibleProducts.length : Math.min(PAGE_SIZE, visibleProducts.length);
 
     if (products.length === 0) {
       showEmpty();
-      updateLoadMoreButton();
       return;
     }
 
     hideEmpty();
-    productGrid.innerHTML = visibleProducts.slice(0, visibleCount).map(buildCard).join('');
+    productGrid.innerHTML = products.map(buildCard).join('');
     productGrid.style.display = '';
 
     wireCartButtons(0);
-    updateLoadMoreButton();
   }
 
   function showMoreProducts() {
-    const nextCount = Math.min(visibleCount + PAGE_SIZE, visibleProducts.length);
-    const firstNewCard = productGrid.children.length;
-    productGrid.insertAdjacentHTML('beforeend', visibleProducts.slice(visibleCount, nextCount).map(buildCard).join(''));
-    visibleCount = nextCount;
-    wireCartButtons(firstNewCard);
-    updateLoadMoreButton();
+    if (currentPage * PAGE_SIZE < totalProducts) applyFilters(currentPage + 1, true);
   }
 
   function wireCartButtons(firstCardIndex) {
@@ -272,7 +247,7 @@
 
   function updateLoadMoreButton() {
     if (!loadMoreButton) return;
-    const remaining = visibleProducts.length - visibleCount;
+    const remaining = Math.max(0, totalProducts - currentPage * PAGE_SIZE);
     loadMoreButton.hidden = remaining <= 0;
     loadMoreButton.textContent = `Show ${Math.min(PAGE_SIZE, remaining)} more products`;
   }
@@ -281,7 +256,8 @@
   // BUILD PRODUCT CARD HTML
   // ════════════════════════
   function buildCard(product) {
-    const price    = parseFloat(product.price).toFixed(2);
+    const price    = Number(product.price);
+    const displayPrice = formatPrice(price);
     const rating   = Number(product.rating_stars) || 0;
     const ratingCount = Number(product.review_count) || 0;
     const stock    = parseInt(product.stock, 10);
@@ -321,7 +297,7 @@
           <p class="product-card__quality">Quality: ${escapeHtml(product.quality || 'Not rated')}</p>
 
           <div class="product-card__meta">
-            <span class="product-card__price">$${price}</span>
+            <span class="product-card__price">${displayPrice}</span>
             <span class="product-card__stock ${stockClass}">${stockLabel}</span>
           </div>
         </div>
@@ -386,11 +362,7 @@
   // ════════════════════════
   // CATEGORY PILLS
   // ════════════════════════
-  function buildCategoryPills(products) {
-    const categories = [...new Set(
-      products.map(p => p.category).filter(Boolean)
-    )].sort();
-
+  function buildCategoryPills(categories) {
     // Keep the "All" pill, append the rest
     const allPill = filterPills.querySelector('[data-category="all"]');
     filterPills.innerHTML = '';
@@ -421,7 +393,6 @@
     if (state.category !== 'all') {
       activeChips.appendChild(makeChip(`Category: ${state.category}`, () => {
         state.category = 'all';
-        showAllProducts = true;
         syncPillState();
         applyFilters();
       }));
@@ -484,7 +455,7 @@
     if (state.search)             parts.push(`matching "${state.search}"`);
     const qualifier = parts.length ? ` ${parts.join(', ')}` : '';
     resultSummary.textContent =
-      `Showing ${count} product${count !== 1 ? 's' : ''}${qualifier}`;
+      `${count} product${count !== 1 ? 's' : ''}${qualifier}`;
   }
 
   // ════════════════════════

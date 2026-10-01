@@ -8,10 +8,29 @@ const API_BASE_URL = (() => {
     return window.NOVACART_API_BASE_URL.replace(/\/+$/, '');
   }
 
-  const isLocalDevelopment = window.location.protocol === 'file:'
-    || ['localhost', '127.0.0.1'].includes(window.location.hostname);
-  return isLocalDevelopment ? 'http://localhost:5000/api' : '/api';
+  if (window.location.protocol === 'file:') return 'http://localhost:5000/api';
+  if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+    return 'http://localhost:5000/api';
+  }
+  return '/api';
 })();
+
+function formatPrice(value) {
+  const amount = Number(value);
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number.isFinite(amount) ? amount : 0);
+}
+
+const googleToken = new URLSearchParams(window.location.hash.replace(/^#/, '')).get('google_token');
+if (googleToken) {
+  localStorage.setItem('novacart_token', googleToken);
+  const cleanUrl = `${window.location.pathname}${window.location.search}`;
+  window.history.replaceState({}, document.title, cleanUrl);
+}
 
 // ── Token Helpers ─────────────────────────────────────────────
 function saveToken(token)  { localStorage.setItem('novacart_token', token); }

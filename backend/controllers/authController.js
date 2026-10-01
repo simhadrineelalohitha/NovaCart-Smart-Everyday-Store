@@ -12,7 +12,24 @@
 
 const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
+const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const db     = require('../config/db');
+
+const GOOGLE_SCOPES = ['openid', 'email', 'profile'];
+
+function googleClient() {
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) return null;
+  return new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  );
+}
+
+function redirectOrigin(req) {
+  return process.env.GOOGLE_SUCCESS_REDIRECT || `${req.protocol}://${req.get('host')}/pages/index.html`;
+}
 
 // Helper — sign a JWT for a user
 function signToken(user) {
@@ -98,4 +115,62 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const googleStart = (req, res) => {
+  const client = googleClient();
+  if (!client) return res.status(503).json({ message: 'Google sign-in is not configured on this server.' });
+  const authorizationUrl = client.generateAuthUrl({
+    access_type: 'offline',
+    scope: GOOGLE_SCOPES,
+    prompt: 'select_account',
+  });
+  res.redirect(authorizationUrl);
+};
+
+const googleCallback = async (req, res) => {
+  const client = googleClient();
+  const loginUrl = `${redirectOrigin(req).replace(/\/pages\/index\.html$/, '')}/pages/login.html`;
+  if (!client) return res.redirect(`${loginUrl}?oauth_error=Google%20sign-in%20is%20not%20configured.`);
+
+  try {
+    if (!req.query.code) return res.redirect(`${loginUrl}?oauth_error=Google%20sign-in%20was%20cancelled.`);
+    const { tokens } = await client.getToken(req.query.code);
+    const ticket = await client.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const profile = ticket.getPayload();
+    if (!profile?.sub || !profile.email || profile.email_verified !== true) {
+      return res.redirect(`${loginUrl}?oauth_error=Google%20did%20not%20return%20a%20verified%20email.`);
+    }
+
+    const email = profile.email.toLowerCase().trim();
+    let result = await db.query('SELECT id, name, email, role FROM users WHERE google_sub = ?', [profile.sub]);
+    let user = result.rows[0];
+    if (!user) {
+      result = await db.query('SELECT id, name, email, role FROM users WHERE email = ?', [email]);
+      user = result.rows[0];
+      if (user) {
+        await db.query('UPDATE users SET google_sub = ?, avatar_url = ? WHERE id = ?', [profile.sub, profile.picture || null, user.id]);
+      }
+    }
+
+    if (!user) {
+      const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
+      result = await db.query(
+        'INSERT INTO users (name, email, password_hash, role, google_sub, avatar_url) VALUES (?, ?, ?, ?, ?, ?) RETURNING id, name, email, role',
+        [profile.name || email.split('@')[0], email, passwordHash, 'user', profile.sub, profile.picture || null]
+      );
+      user = result.rows[0];
+    }
+
+    const token = signToken(user);
+    const redirectUrl = new URL(redirectOrigin(req));
+    redirectUrl.hash = `google_token=${encodeURIComponent(token)}`;
+    res.redirect(redirectUrl.toString());
+  } catch (error) {
+    console.error('Google sign-in error:', error.message);
+    res.redirect(`${loginUrl}?oauth_error=Google%20sign-in%20failed.`);
+  }
+};
+
+module.exports = { register, login, googleStart, googleCallback };

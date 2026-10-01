@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Update nav auth links
   updateAuthNav();
+  refreshCartBadge();
 
   // Handle logout button
   const logoutBtn = document.getElementById('nav-logout');
@@ -59,7 +60,7 @@ function renderCheckout(cart, container) {
       <div class="checkout-item">
         <span class="checkout-item-name">${item.name}</span>
         <span class="checkout-item-qty">× ${item.quantity}</span>
-        <span class="checkout-item-price">$${(item.price * item.quantity).toFixed(2)}</span>
+        <span class="checkout-item-price">${formatPrice(item.price * item.quantity)}</span>
       </div>
     `;
   });
@@ -69,7 +70,7 @@ function renderCheckout(cart, container) {
       <h2>Order Summary</h2>
       <div class="checkout-items">${itemsHtml}</div>
       <div class="checkout-total">
-        <strong>Total: $${total.toFixed(2)}</strong>
+        <strong>Total: ${formatPrice(total)}</strong>
       </div>
     </div>
 
@@ -117,7 +118,17 @@ async function handlePlaceOrder(e) {
   msgBox.textContent = '';
 
   try {
-    const data = await api.post('/orders', {}, true);
+    const data = await api.post('/orders', {
+      items: getCart().map(item => ({
+        product_id: Number(item.id),
+        quantity: Number(item.quantity),
+      })),
+      shipping: {
+        name: document.getElementById('full-name').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+      },
+    }, true);
 
     // Success — clear cart and show confirmation
     clearCart();
@@ -127,7 +138,7 @@ async function handlePlaceOrder(e) {
       <div class="order-success">
         <div class="success-icon">✅</div>
         <h2>Order Placed Successfully!</h2>
-        <p>Order #${data.data.id} — Total: <strong>$${parseFloat(data.data.total_amount).toFixed(2)}</strong></p>
+        <p>Order #${data.data.id} — Total: <strong>${formatPrice(data.data.total_amount)}</strong></p>
         <p style="color:#555; margin-top:.5rem;">Thank you for shopping with NovaCart!</p>
         <a href="tracking.html?orderId=${data.data.id}" class="btn btn--outline" style="margin-top:1.5rem;">Track Order</a>
         <a href="products.html" class="btn btn--primary" style="margin-top:1.5rem;">Continue Shopping</a>

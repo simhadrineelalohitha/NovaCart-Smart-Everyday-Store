@@ -18,6 +18,8 @@ const productReviewModel = require('../models/productReviewModel');
 // ── Category validation ────────────────────────────────────────
 // Categories are labels from the catalog, not a fixed enum.
 const MAX_CATEGORY_LENGTH = 100;
+const MAX_PAGE_SIZE = 100;
+const PRODUCT_SORTS = new Set(['default', 'price-asc', 'price-desc', 'name-asc', 'name-desc']);
 
 function isValidCategory(category) {
   return typeof category === 'string'
@@ -82,14 +84,17 @@ function validateProduct(body, requireAll = false) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// GET /api/products
-// GET /api/products?category=Electronics
+// GET /api/products?page=1&limit=24&category=Electronics&q=fan&sort=price-asc
 // ════════════════════════════════════════════════════════════════
 // Returns all products, optionally filtered by category.
 // Always returns an array — empty array if no products exist.
 const getAllProducts = async (req, res, next) => {
   try {
     const requestedCategory = req.query.category;
+    const requestedSearch = req.query.q === undefined ? '' : req.query.q;
+    const requestedPage = req.query.page === undefined ? '1' : req.query.page;
+    const requestedLimit = req.query.limit === undefined ? '24' : req.query.limit;
+    const requestedSort = req.query.sort === undefined ? 'default' : req.query.sort;
 
     if (requestedCategory !== undefined && !isValidCategory(requestedCategory)) {
       return res.status(400).json({
@@ -97,17 +102,49 @@ const getAllProducts = async (req, res, next) => {
         message:    `Category must be a non-empty string up to ${MAX_CATEGORY_LENGTH} characters.`,
       });
     }
+    if (typeof requestedSearch !== 'string' || requestedSearch.length > 200) {
+      return res.status(400).json({ error: 'Invalid search', message: 'Search must be a string up to 200 characters.' });
+    }
+    if (!/^\d+$/.test(String(requestedPage)) || Number(requestedPage) < 1) {
+      return res.status(400).json({ error: 'Invalid page', message: 'Page must be a positive integer.' });
+    }
+    if (!/^\d+$/.test(String(requestedLimit)) || Number(requestedLimit) < 1 || Number(requestedLimit) > MAX_PAGE_SIZE) {
+      return res.status(400).json({ error: 'Invalid limit', message: `Limit must be between 1 and ${MAX_PAGE_SIZE}.` });
+    }
+    if (typeof requestedSort !== 'string' || !PRODUCT_SORTS.has(requestedSort)) {
+      return res.status(400).json({ error: 'Invalid sort', message: 'Sort option is not supported.' });
+    }
 
     const category = typeof requestedCategory === 'string' ? requestedCategory.trim() : undefined;
-    const products = await productModel.getAllProducts(category);
+    const page = Number(requestedPage);
+    const limit = Number(requestedLimit);
+    const { rows, total } = await productModel.getAllProducts({
+      category,
+      search: requestedSearch.trim(),
+      sort: requestedSort,
+      limit,
+      offset: (page - 1) * limit,
+    });
 
     res.status(200).json({
       success: true,
-      count:   products.length,
-      data:    products,
+      count: total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      data: rows,
     });
   } catch (err) {
     next(err);  // pass to global error handler in server.js
+  }
+};
+
+const getProductCategories = async (_req, res, next) => {
+  try {
+    const categories = await productModel.getProductCategories();
+    res.status(200).json({ success: true, count: categories.length, data: categories });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -356,6 +393,7 @@ const deleteProduct = async (req, res, next) => {
 
 module.exports = {
   getAllProducts,
+  getProductCategories,
   getProductById,
   getProductReviews,
   createProductReview,

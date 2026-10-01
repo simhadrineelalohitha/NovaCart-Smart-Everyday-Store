@@ -7,10 +7,10 @@
   position: sticky;
   top: 0;
   z-index: 200;
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background-color: rgba(245, 246, 241, 0.97);
+  backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--clr-border);
+  border-bottom: 1px solid rgba(37,72,61,0.14);
   transition: box-shadow var(--t-base);
 }
 
@@ -23,10 +23,10 @@
   display: flex;
   align-items: center;
   gap: var(--space-6);
-  max-width: 1200px;
+  max-width: 1360px;
   margin-inline: auto;
   padding-inline: var(--space-6);
-  height: 64px;
+  height: 72px;
 }
 
 /* ── Logo ─────────────────────────────────────────────────────── */
@@ -45,14 +45,14 @@
 }
 
 .navbar__logo-text {
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: 1.18rem;
+  font-weight: 700;
   color: var(--clr-text);
-  letter-spacing: -0.5px;
+  letter-spacing: 0;
 }
 
 .navbar__logo-text span {
-  color: var(--clr-primary);
+  color: var(--clr-accent);
 }
 
 /* ── Desktop Nav Links ────────────────────────────────────────── */
@@ -80,7 +80,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background-color: var(--clr-primary);
+  background-color: var(--clr-accent);
   border-radius: var(--radius-full);
   transition: width var(--t-base);
 }
@@ -171,11 +171,11 @@
 .navbar__btn--filled {
   background-color: var(--clr-primary);
   color: #fff;
-  border-color: var(--clr-primary);
+  border-color: var(--clr-accent);
 }
 .navbar__btn--filled:hover {
-  background-color: var(--clr-primary-dark);
-  border-color: var(--clr-primary-dark);
+  background-color: var(--clr-accent-dark);
+  border-color: var(--clr-accent-dark);
 }
 
 /* ── Hamburger (mobile only) ──────────────────────────────────── */

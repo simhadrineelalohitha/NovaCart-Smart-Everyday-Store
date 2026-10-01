@@ -9,7 +9,19 @@ const dotenv  = require('dotenv');
 const path    = require('path');
 
 // Load environment variables from .env file FIRST, before anything else
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config({ path: path.join(__dirname, '.env') });
+
+const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
+const jwtSecret = typeof process.env.JWT_SECRET === 'string' ? process.env.JWT_SECRET.trim() : '';
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET is required for authentication.');
+}
+if (isProduction && (jwtSecret.length < 32 || jwtSecret === 'replace_this_with_a_long_random_secret_string')) {
+  throw new Error('Production JWT_SECRET must be a unique random value with at least 32 characters.');
+}
+process.env.JWT_SECRET = jwtSecret;
 
 // ── Import route modules ──────────────────────────────────────
 const authRoutes    = require('./routes/authRoutes');
@@ -21,10 +33,6 @@ const compareRoutes  = require('./routes/compareRoutes');
 
 // Create the Express application
 const app  = express();
-const PORT = process.env.PORT || 5000;
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET is required for authentication.');
-}
 
 // ── Connect to the database ───────────────────────────────────
 const db = require('./config/db');
@@ -40,19 +48,20 @@ app.use(express.urlencoded({ extended: true }));
 
 // 3. CORS — allows the frontend (on port 3000 or via file://) to call this server
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    'null',       // allows requests from file:// (opening HTML files directly in browser)
-  ],
+  origin: isProduction
+    ? [process.env.FRONTEND_URL].filter(Boolean)
+    : [process.env.FRONTEND_URL || 'http://localhost:3000', 'null'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
 
-// 4. Simple request logger — prints every incoming request to the console
-app.use((req, _res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
-  next();
-});
+// 4. Request logging is useful locally but too noisy for production asset traffic.
+if (!isProduction) {
+  app.use((req, _res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+    next();
+  });
+}
 
 // ── Health Check Route ────────────────────────────────────────
 // The very first route — always available, no auth required.
@@ -94,7 +103,7 @@ app.use((err, req, res, next) => {
   console.error('❌ Unhandled Error:', err.stack);
   res.status(err.status || 500).json({
     error:   'Internal Server Error',
-    message: err.message || 'Something went wrong on the server.',
+    message: isProduction ? 'Something went wrong on the server.' : (err.message || 'Something went wrong on the server.'),
   });
 });
 

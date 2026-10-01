@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "description": "NovaCart e-commerce backend — Node.js + Express.js + PostgreSQL",
   "main": "server.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "db:init": "node scripts/initDb.js",
     "db:seed": "node scripts/seedDb.js",
-    "db:import": "node scripts/importProducts.js",
+    "db:import": "node ../database/import-excel-to-postgres.js",
+    "db:audit-images": "node scripts/auditProductImages.js",
+    "images:refresh-mapped-types": "node scripts/refreshMappedProductTypeImages.js",
     "db:set-role": "node scripts/setUserRole.js",
     "db:migrate:sqlite": "node scripts/migrateSqliteToPostgres.js"
   },
@@ -22,16 +27,17 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^13.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "exceljs": "^4.4.0",
     "express": "^4.19.2",
+    "google-auth-library": "^11.1.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.23.0",
-    "sharp": "^0.35.5"
+    "pg": "^8.23.0"
   },
   "devDependencies": {
+    "better-sqlite3": "^13.0.3",
+    "exceljs": "^4.4.0",
+    "sharp": "^0.35.5",
     "nodemon": "^3.1.4"
   }
 }

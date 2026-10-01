@@ -85,7 +85,7 @@ function renderCart() {
             : `<span class="cart-thumb-fallback" aria-label="No image available">${item.name.charAt(0).toUpperCase()}</span>`}
           <span>${item.name}</span>
         </td>
-        <td>$${parseFloat(item.price).toFixed(2)}</td>
+        <td>${formatPrice(item.price)}</td>
         <td>
           <div class="qty-control">
             <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
@@ -93,7 +93,7 @@ function renderCart() {
             <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
           </div>
         </td>
-        <td>$${subtotal.toFixed(2)}</td>
+        <td>${formatPrice(subtotal)}</td>
         <td>
           <button class="btn-remove" onclick="deleteItem(${item.id})">✕</button>
         </td>
@@ -105,7 +105,7 @@ function renderCart() {
   container.innerHTML = html;
 
   // Update totals
-  if (totalEl) totalEl.textContent = `$${total.toFixed(2)}`;
+  if (totalEl) totalEl.textContent = formatPrice(total);
   if (summary)  summary.style.display = 'block';
 }
 

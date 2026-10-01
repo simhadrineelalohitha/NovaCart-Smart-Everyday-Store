@@ -12,4 +12,8 @@ router.post('/register', authController.register);
 // Log in with email and password, receive a JWT
 router.post('/login', authController.login);
 
+// Google OAuth 2.0 login
+router.get('/google', authController.googleStart);
+router.get('/google/callback', authController.googleCallback);
+
 module.exports = router;

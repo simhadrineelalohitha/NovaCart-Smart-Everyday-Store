@@ -11,66 +11,122 @@
 
 const db = require('../config/db');
 
+function orderError(status, message) {
+  return Object.assign(new Error(message), { status });
+}
+
 // ── POST /api/orders ─────────────────────────────────────────
 // Converts the user's current cart into a completed order.
 // Uses a database transaction for atomicity (all-or-nothing).
 const placeOrder = async (req, res) => {
   try {
     const userId = req.user.id;
+    const requestedItems = req.body.items;
+    const usesClientCart = requestedItems !== undefined;
+    const shipping = req.body.shipping;
+    let shippingDetails = { name: null, address: null, phone: null };
 
-    // 1. Get the user's cart with product info
-    const cartResult = await db.query(`
-      SELECT ci.product_id, ci.quantity, p.price, p.stock, p.name
-      FROM cart_items ci
-      JOIN products p ON ci.product_id = p.id
-      WHERE ci.user_id = ?
-    `, [userId]);
-    const cartItems = cartResult.rows;
-
-    if (cartItems.length === 0) {
-      return res.status(400).json({ message: 'Your cart is empty. Add items before placing an order.' });
-    }
-
-    // 2. Validate stock
-    for (const item of cartItems) {
-      if (item.stock < item.quantity) {
-        return res.status(400).json({
-          message: `"${item.name}" only has ${item.stock} unit(s) in stock, but you ordered ${item.quantity}.`,
-        });
+    if (usesClientCart) {
+      if (!Array.isArray(requestedItems) || requestedItems.length === 0) {
+        return res.status(400).json({ message: 'Your cart is empty. Add items before placing an order.' });
+      }
+      const productIds = new Set();
+      for (const item of requestedItems) {
+        const productId = Number(item?.product_id);
+        const quantity = Number(item?.quantity);
+        if (!Number.isSafeInteger(productId) || productId <= 0 || !Number.isSafeInteger(quantity) || quantity <= 0) {
+          return res.status(400).json({ message: 'Each order item needs a valid product_id and positive integer quantity.' });
+        }
+        if (productIds.has(productId)) {
+          return res.status(400).json({ message: 'An order cannot contain duplicate product IDs.' });
+        }
+        productIds.add(productId);
       }
     }
 
-    const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    if (shipping !== undefined) {
+      if (!shipping || typeof shipping !== 'object' || Array.isArray(shipping)) {
+        return res.status(400).json({ message: 'Shipping details are invalid.' });
+      }
+      shippingDetails = {
+        name: typeof shipping.name === 'string' ? shipping.name.trim() : '',
+        address: typeof shipping.address === 'string' ? shipping.address.trim() : '',
+        phone: typeof shipping.phone === 'string' ? shipping.phone.trim() : '',
+      };
+      const phoneDigits = shippingDetails.phone.replace(/\D/g, '');
+      if (shippingDetails.name.length < 2 || shippingDetails.name.length > 120
+        || shippingDetails.address.length < 5 || shippingDetails.address.length > 500
+        || !/^[+()\d.\-\s]+$/.test(shippingDetails.phone)
+        || phoneDigits.length < 7 || phoneDigits.length > 15) {
+        return res.status(400).json({ message: 'Enter a valid name, delivery address, and phone number.' });
+      }
+    }
 
-    // 3. Everything in a transaction — if any step fails, all changes roll back
     const orderId = await db.withTransaction(async transaction => {
-      // Insert order header
+      let cartItems;
+      if (usesClientCart) {
+        cartItems = [];
+        for (const requestedItem of requestedItems) {
+          const productId = Number(requestedItem.product_id);
+          const quantity = Number(requestedItem.quantity);
+          const productResult = await transaction.query(
+            'SELECT id AS product_id, name, price, stock FROM products WHERE id = ?',
+            [productId]
+          );
+          const product = productResult.rows[0];
+          if (!product) throw orderError(404, `Product ${productId} was not found.`);
+          if (Number(product.stock) < quantity) {
+            throw orderError(409, `"${product.name}" only has ${product.stock} unit(s) in stock, but you ordered ${quantity}.`);
+          }
+          cartItems.push({ ...product, quantity });
+        }
+      } else {
+        const cartResult = await transaction.query(`
+          SELECT ci.product_id, ci.quantity, p.price, p.stock, p.name
+          FROM cart_items ci
+          JOIN products p ON ci.product_id = p.id
+          WHERE ci.user_id = ?
+        `, [userId]);
+        cartItems = cartResult.rows;
+        if (cartItems.length === 0) {
+          throw orderError(400, 'Your cart is empty. Add items before placing an order.');
+        }
+        for (const item of cartItems) {
+          if (Number(item.stock) < Number(item.quantity)) {
+            throw orderError(409, `"${item.name}" only has ${item.stock} unit(s) in stock, but you ordered ${item.quantity}.`);
+          }
+        }
+      }
+
+      const total = cartItems.reduce((sum, item) => sum + Number(item.price) * Number(item.quantity), 0);
       const orderResult = await transaction.query(
-        'INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, ?) RETURNING id',
-        [userId, parseFloat(total.toFixed(2)), 'pending']
+        `INSERT INTO orders (user_id, total_amount, status, shipping_name, shipping_address, shipping_phone)
+         VALUES (?, ?, ?, ?, ?, ?) RETURNING id`,
+        [userId, Number(total.toFixed(2)), 'pending', shippingDetails.name, shippingDetails.address, shippingDetails.phone]
       );
       const createdOrderId = orderResult.rows[0].id;
 
-      // Insert order_items (one row per product)
       for (const item of cartItems) {
         await transaction.query(
           'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
           [createdOrderId, item.product_id, item.quantity, item.price]
         );
+        const stockUpdate = await transaction.query(
+          'UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?',
+          [item.quantity, item.product_id, item.quantity]
+        );
+        if (stockUpdate.rowCount !== 1) {
+          throw orderError(409, `"${item.name}" no longer has enough stock to complete this order.`);
+        }
       }
 
-      // Reduce stock for each product
-      for (const item of cartItems) {
-        await transaction.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
+      if (!usesClientCart) {
+        await transaction.query('DELETE FROM cart_items WHERE user_id = ?', [userId]);
       }
-
-      // Clear the user's cart
-      await transaction.query('DELETE FROM cart_items WHERE user_id = ?', [userId]);
 
       return createdOrderId;
     });
 
-    // 4. Return the new order with its items
     const orderResult = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
     const order = orderResult.rows[0];
     const itemResult = await db.query(`
@@ -88,6 +144,7 @@ const placeOrder = async (req, res) => {
     });
   } catch (err) {
     console.error('placeOrder error:', err.message);
+    if (err.status) return res.status(err.status).json({ message: err.message });
     res.status(500).json({ message: 'Could not place order.' });
   }
 };

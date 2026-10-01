@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
   email         TEXT      NOT NULL UNIQUE,
   password_hash TEXT      NOT NULL,
   role          TEXT      NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  google_sub    TEXT      UNIQUE,
+  avatar_url    TEXT,
   created_at    DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -53,6 +55,9 @@ CREATE TABLE IF NOT EXISTS orders (
   total_amount REAL     NOT NULL CHECK (total_amount >= 0),
   status       TEXT     NOT NULL DEFAULT 'pending'
                         CHECK (status IN ('pending','confirmed','shipped','delivered','cancelled')),
+  shipping_name TEXT,
+  shipping_address TEXT,
+  shipping_phone TEXT,
   created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

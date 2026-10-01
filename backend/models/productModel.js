@@ -1,13 +1,37 @@
 const db = require('../config/db');
 
-async function getAllProducts(category) {
-  let result;
+async function getAllProducts({ category, search, sort, limit, offset }) {
+  const conditions = [];
+  const params = [];
   if (category) {
-    result = await db.query('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [category]);
-  } else {
-    result = await db.query('SELECT * FROM products ORDER BY created_at DESC');
+    conditions.push('category = ?');
+    params.push(category);
   }
-  return result.rows;
+  if (search) {
+    conditions.push("(LOWER(name) LIKE ? ESCAPE '!' OR LOWER(COALESCE(description, '')) LIKE ? ESCAPE '!')");
+    const pattern = `%${search.toLowerCase().replace(/[!%_]/g, '!$&')}%`;
+    params.push(pattern, pattern);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const orderBy = {
+    default: 'created_at DESC, id DESC',
+    'price-asc': 'price ASC, id ASC',
+    'price-desc': 'price DESC, id DESC',
+    'name-asc': 'name ASC, id ASC',
+    'name-desc': 'name DESC, id DESC',
+  }[sort] || 'created_at DESC, id DESC';
+
+  const [countResult, productResult] = await Promise.all([
+    db.query(`SELECT COUNT(*) AS total FROM products ${where}`, params),
+    db.query(`SELECT * FROM products ${where} ORDER BY ${orderBy} LIMIT ? OFFSET ?`, [...params, limit, offset]),
+  ]);
+  return { rows: productResult.rows, total: Number(countResult.rows[0].total) };
+}
+
+async function getProductCategories() {
+  const result = await db.query("SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND TRIM(category) <> '' ORDER BY category");
+  return result.rows.map(row => row.category);
 }
 
 async function getProductById(id) {
@@ -52,4 +76,4 @@ async function deleteProduct(id) {
   return existing;
 }
 
-module.exports = { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct };
+module.exports = { getAllProducts, getProductCategories, getProductById, createProduct, updateProduct, deleteProduct };

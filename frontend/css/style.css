@@ -14,20 +14,22 @@
 
 /* ── 1. CSS VARIABLES ─────────────────────────────────────────── */
 :root {
-  /* Brand colours */
-  --clr-primary:       #4f46e5;   /* Indigo 600 */
-  --clr-primary-dark:  #4338ca;   /* Indigo 700 — hover */
-  --clr-primary-light: #eef2ff;   /* Indigo 50  — backgrounds */
-  --clr-accent:        #f59e0b;   /* Amber 500  — badges, highlights */
-  --clr-accent-dark:   #d97706;   /* Amber 600  — hover */
+  /* NovaCart's ink, leaf and persimmon palette */
+  --clr-primary:       #25483d;
+  --clr-primary-dark:  #18382f;
+  --clr-primary-light: #e7eee8;
+  --clr-accent:        #df6448;
+  --clr-accent-dark:   #bd4933;
+  --clr-citrus:        #e6bd54;
+  --clr-sky:            #dce9ee;
 
   /* Neutrals */
-  --clr-bg:            #f9fafb;   /* Gray 50 */
-  --clr-surface:       #ffffff;
-  --clr-border:        #e5e7eb;   /* Gray 200 */
-  --clr-text:          #111827;   /* Gray 900 */
-  --clr-text-secondary:#6b7280;   /* Gray 500 */
-  --clr-text-muted:    #9ca3af;   /* Gray 400 */
+  --clr-bg:            #f5f6f1;
+  --clr-surface:       #fffefa;
+  --clr-border:        #dce1d9;
+  --clr-text:          #202a26;
+  --clr-text-secondary:#66716a;
+  --clr-text-muted:    #818b83;
 
   /* Status */
   --clr-error:         #ef4444;
@@ -35,7 +37,8 @@
   --clr-warning:       #f59e0b;
 
   /* Typography */
-  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-sans: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
   --font-size-xs:   0.75rem;    /* 12px */
   --font-size-sm:   0.875rem;   /* 14px */
   --font-size-base: 1rem;       /* 16px */
@@ -60,16 +63,16 @@
 
   /* Radii */
   --radius-sm: 6px;
-  --radius:    10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius:    5px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-full: 9999px;
 
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.06);
   --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-  --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+  --shadow-md: 0 8px 24px rgba(32,42,38,0.10);
+  --shadow-lg: 0 16px 38px rgba(32,42,38,0.14);
 
   /* Transitions */
   --t-fast:   0.15s ease;
@@ -102,6 +105,17 @@ body {
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--clr-citrus); color: var(--clr-text); }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--clr-accent);
+  outline-offset: 3px;
 }
 
 img, video, svg {
@@ -157,10 +171,10 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   gap: var(--space-2);
   padding: 0.625rem 1.375rem;
-  border-radius: var(--radius-full);
+  border-radius: 4px;
   font-size: var(--font-size-sm);
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   border: 2px solid transparent;
   cursor: pointer;
   transition: background-color var(--t-base), color var(--t-base),
@@ -186,15 +200,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Primary */
 .btn--primary {
-  background-color: var(--clr-primary);
+  background-color: var(--clr-accent);
   color: #fff;
-  border-color: var(--clr-primary);
+  border-color: var(--clr-accent);
 }
 .btn--primary:hover {
-  background-color: var(--clr-primary-dark);
-  border-color: var(--clr-primary-dark);
+  background-color: var(--clr-accent-dark);
+  border-color: var(--clr-accent-dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 5px 14px rgba(189,73,51,0.22);
 }
 
 /* Outline (indigo border, transparent bg) */
@@ -247,8 +261,9 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: var(--space-8);
 }
 .section-title {
-  font-size: var(--font-size-2xl);
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
   color: var(--clr-text);
 }
 .section-sub {

@@ -1,9 +1,11 @@
 {
   "scripts": {
     "postinstall": "npm --prefix backend install",
-    "start": "npm --prefix backend start"
+    "start": "npm --prefix backend start",
+    "db:import": "node database/import-excel-to-postgres.js",
+    "db:verify": "node database/verify-production-db.js"
   },
-  "dependencies": {
-    "exceljs": "^4.4.0"
+  "engines": {
+    "node": ">=22"
   }
 }

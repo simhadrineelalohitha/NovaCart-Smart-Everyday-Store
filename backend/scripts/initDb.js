@@ -22,7 +22,9 @@ async function initialize() {
     const { Pool } = require('pg');
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+      ssl: process.env.NODE_ENV === 'production'
+        ? { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED === 'false' ? false : true }
+        : undefined,
     });
     try {
       await pool.query(fs.readFileSync(path.join(__dirname, '../models/schema.sql'), 'utf8'));

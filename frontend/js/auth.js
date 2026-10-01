@@ -13,6 +13,50 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loginForm)    loginForm.addEventListener('submit', handleLogin);
   if (registerForm) registerForm.addEventListener('submit', handleRegister);
 
+  const googleButtons = document.querySelectorAll('[data-google-login]');
+  googleButtons.forEach(button => {
+    button.addEventListener('click', async () => {
+      const url = `${API_BASE_URL}/auth/google`;
+      try {
+        const response = await fetch(url, { redirect: 'manual' });
+        if (response.status === 503) {
+          const errorText = await response.text();
+          const payload = JSON.parse(errorText || '{}');
+          setMessage(payload.message || 'Google sign-in is not configured on this server.', 'error');
+          return;
+        }
+        const location = response.headers.get('location');
+        if (location) {
+          window.location.href = location;
+          return;
+        }
+        if (response.redirected || response.ok) {
+          window.location.href = url;
+          return;
+        }
+        setMessage('Google sign-in is not configured on this server.', 'error');
+      } catch {
+        setMessage('Google sign-in is not configured on this server.', 'error');
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-password-toggle]').forEach((toggleBtn) => {
+    toggleBtn.addEventListener('click', () => {
+      const targetId = toggleBtn.dataset.passwordToggle;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      toggleBtn.textContent = isPassword ? 'Hide' : 'Show';
+      toggleBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    });
+  });
+
+  const oauthError = new URLSearchParams(window.location.search).get('oauth_error');
+  if (oauthError) setMessage(decodeURIComponent(oauthError), 'error');
+
   // Logout button (shown in navbar when user is logged in)
   const logoutBtn = document.getElementById('nav-logout');
   if (logoutBtn) {

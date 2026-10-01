@@ -15,10 +15,10 @@
   'use strict';
 
   // ── State ─────────────────────────────────────────────────────
-  let allProducts    = [];   // full list from API
   let activeCategory = 'all';
-  let visibleProducts = [];
-  let visibleCount = 0;
+  let currentPage = 1;
+  let totalProducts = 0;
+  let requestSequence = 0;
   const PAGE_SIZE = 24;
 
   // ── DOM refs ──────────────────────────────────────────────────
@@ -33,35 +33,21 @@
 
   // ── Boot ──────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
     wireCategoryCards();
     if (loadMoreButton) loadMoreButton.addEventListener('click', showMoreProducts);
+    initializeProducts();
   });
 
   // ════════════════════════════════════════════════════════════════
   // LOAD PRODUCTS — fetch from backend, handle all states
   // ════════════════════════════════════════════════════════════════
-  async function loadProducts() {
+  async function initializeProducts() {
     showSkeleton();
 
     try {
-      // api.get() comes from api.js; returns { success, count, data }
-      const response = await api.get('/products');
-      const products = response.data || response;   // handle both shapes
-
-      allProducts = Array.isArray(products) ? products : [];
-
-      hideSkeleton();
-
-      if (allProducts.length === 0) {
-        showEmpty();
-        setCountLabel(0, 'all');
-        return;
-      }
-
-      buildFilterBar(allProducts);
-      renderProducts(allProducts);
-      setCountLabel(allProducts.length, 'all');
+      const response = await api.get('/products/categories');
+      buildFilterBar(Array.isArray(response.data) ? response.data : []);
+      await loadProducts();
 
     } catch (err) {
       hideSkeleton();
@@ -71,44 +57,69 @@
   }
 
   // Make loadProducts globally accessible for the "Try Again" button
-  window.loadProducts = loadProducts;
+  window.loadProducts = () => initializeProducts();
+
+  async function loadProducts(page = 1, append = false) {
+    const requestId = ++requestSequence;
+    if (!append) showSkeleton();
+    if (loadMoreButton) loadMoreButton.disabled = true;
+
+    const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
+    if (activeCategory !== 'all') params.set('category', activeCategory);
+
+    try {
+      const response = await api.get(`/products?${params.toString()}`);
+      if (requestId !== requestSequence) return;
+      const products = Array.isArray(response.data) ? response.data : [];
+      totalProducts = Number(response.count) || 0;
+      currentPage = Number(response.page) || page;
+      hideSkeleton();
+      renderProducts(products, append);
+      setCountLabel(totalProducts, activeCategory);
+      updateLoadMoreButton();
+    } catch (err) {
+      if (requestId === requestSequence) {
+        hideSkeleton();
+        showError(err.message);
+        console.error('[NovaCart] Failed to load products:', err);
+      }
+    } finally {
+      if (requestId === requestSequence && loadMoreButton) loadMoreButton.disabled = false;
+    }
+  }
 
   // ════════════════════════════════════════════════════════════════
   // RENDER PRODUCTS
   // ════════════════════════════════════════════════════════════════
-  function renderProducts(products, showAll = false) {
-    visibleProducts = products;
-    visibleCount = showAll ? visibleProducts.length : Math.min(PAGE_SIZE, visibleProducts.length);
-    hideAll();
+  function renderProducts(products, append = false) {
+    if (!append) hideAll();
 
-    if (products.length === 0) {
+    if (!append && products.length === 0) {
       showEmpty();
-      updateLoadMoreButton();
       return;
     }
 
-    grid.innerHTML = visibleProducts.slice(0, visibleCount).map(buildProductCard).join('');
+    if (append && products.length === 0) return;
+    const markup = products.map(buildProductCard).join('');
+    if (append) grid.insertAdjacentHTML('beforeend', markup);
+    else grid.innerHTML = markup;
     grid.style.display = '';
-    updateLoadMoreButton();
   }
 
   function showMoreProducts() {
-    const nextCount = Math.min(visibleCount + PAGE_SIZE, visibleProducts.length);
-    grid.insertAdjacentHTML('beforeend', visibleProducts.slice(visibleCount, nextCount).map(buildProductCard).join(''));
-    visibleCount = nextCount;
-    updateLoadMoreButton();
+    if (currentPage * PAGE_SIZE < totalProducts) loadProducts(currentPage + 1, true);
   }
 
   function updateLoadMoreButton() {
     if (!loadMoreButton) return;
-    const remaining = visibleProducts.length - visibleCount;
+    const remaining = Math.max(0, totalProducts - currentPage * PAGE_SIZE);
     loadMoreButton.hidden = remaining <= 0;
     loadMoreButton.textContent = `Show ${Math.min(PAGE_SIZE, remaining)} more products`;
   }
 
   // ── Build one product card's HTML ─────────────────────────────
   function buildProductCard(product) {
-    const price    = parseFloat(product.price).toFixed(2);
+    const price    = formatPrice(product.price);
     const rating   = Number(product.rating_stars) || 0;
     const ratingCount = Number(product.review_count) || 0;
     const inStock  = parseInt(product.stock, 10) > 0;
@@ -126,7 +137,7 @@
                onclick="window.location.href='product.html?id=${product.id}'"
                tabindex="0"
                onkeydown="if(event.key==='Enter')window.location.href='product.html?id=${product.id}'"
-               aria-label="${safeName}, $${price}">
+               aria-label="${safeName}, ${price}">
 
         <div class="product-card__img-wrap">
           ${imageMarkup}
@@ -143,7 +154,7 @@
           <p class="product-card__quality">Quality: ${escapeHtml(product.quality || 'Not rated')}</p>
 
           <div class="product-card__footer">
-            <span class="product-card__price">$${price}</span>
+            <span class="product-card__price">${price}</span>
             <span class="product-card__stock ${lowStock ? 'product-card__stock--low' : ''}">
               ${inStock
                 ? (lowStock ? `Only ${product.stock} left` : `In Stock`)
@@ -166,12 +177,7 @@
   // ════════════════════════════════════════════════════════════════
   // FILTER BAR — pill buttons populated from product categories
   // ════════════════════════════════════════════════════════════════
-  function buildFilterBar(products) {
-    // Extract sorted unique categories
-    const categories = [...new Set(
-      products.map(p => p.category).filter(Boolean)
-    )].sort();
-
+  function buildFilterBar(categories) {
     // Clear existing pills (keep the "All" button)
     filterBar.innerHTML = `<button class="filter-btn active" data-category="all">All Products</button>`;
 
@@ -206,12 +212,8 @@
       card.classList.toggle('active', card.dataset.filter === category);
     });
 
-    const filtered = category === 'all'
-      ? allProducts
-      : allProducts.filter(p => p.category === category);
-
-    renderProducts(filtered, category === 'all');
-    setCountLabel(filtered.length, category);
+    currentPage = 1;
+    loadProducts();
   }
 
   // Make setActiveFilter accessible globally (used by empty-state button)

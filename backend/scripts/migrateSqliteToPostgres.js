@@ -5,7 +5,7 @@ const { Pool } = require('pg');
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const USER_COLUMNS = ['name', 'email', 'password_hash', 'role', 'created_at'];
+const USER_COLUMNS = ['name', 'email', 'password_hash', 'role', 'google_sub', 'avatar_url', 'created_at'];
 const PRODUCT_COLUMNS = [
   'source_product_id', 'name', 'description', 'price', 'image_url', 'category', 'stock',
   'subcategory', 'brand', 'variant_specification', 'mrp_inr', 'discount_percent',
@@ -80,7 +80,9 @@ async function migrate() {
   const sqlite = new Database(sqlitePath, { readonly: true, fileMustExist: true });
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    ssl: process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED === 'false' ? false : true }
+      : undefined,
   });
 
   try {

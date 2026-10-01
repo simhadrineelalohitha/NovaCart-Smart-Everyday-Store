@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const heading = document.createElement('h2');
         heading.textContent = item.name;
         const details = document.createElement('p');
-        details.textContent = `${item.category || 'Product'} · $${Number(item.price).toFixed(2)} · ${item.stock > 0 ? 'In stock' : 'Out of stock'}`;
+        details.textContent = `${item.category || 'Product'} · ${formatPrice(item.price)} · ${item.stock > 0 ? 'In stock' : 'Out of stock'}`;
         const view = document.createElement('a');
         view.className = 'btn btn--outline';
         view.href = `product.html?id=${item.product_id}`;

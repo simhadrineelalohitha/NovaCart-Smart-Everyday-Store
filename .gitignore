@@ -4,6 +4,16 @@ npm-debug.log*
 
 # ── Environment Variables (NEVER commit these) ───────
 .env
+.env.*
+!.env.example
+!**/.env.example
+
+# ── Local databases contain user and catalog data ────
+backend/*.db
+backend/*.db-*
+backend/*.sqlite
+backend/*.sqlite-*
+backend/*.sqlite3
 
 # ── OS Files ─────────────────────────────────────────
 .DS_Store

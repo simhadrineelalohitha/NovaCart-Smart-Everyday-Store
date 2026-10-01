@@ -22,6 +22,7 @@ const { authenticate, requireAdmin }  = require('../middleware/authMiddleware');
 
 // GET /api/products
 // GET /api/products?category=Electronics
+router.get('/categories', productController.getProductCategories);
 router.get('/', productController.getAllProducts);
 
 // Product ratings and written reviews

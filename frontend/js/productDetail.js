@@ -137,7 +137,6 @@
   // RENDER PRODUCT
   // ════════════════════════
   function renderProduct(p) {
-    const price   = parseFloat(p.price).toFixed(2);
     const stock   = parseInt(p.stock, 10);
     const inStock = stock > 0;
     const lowStock = inStock && stock <= 5;
@@ -165,7 +164,7 @@
     // ── Text fields ────────────────────────────────────────────
     categoryEl.textContent = p.category || 'General';
     nameEl.textContent     = p.name;
-    priceEl.textContent    = `$${price}`;
+    priceEl.textContent    = formatPrice(p.price);
     descEl.textContent     = p.description || 'No description available for this product.';
     updateRatingSummary({
       rating_stars: p.rating_stars,

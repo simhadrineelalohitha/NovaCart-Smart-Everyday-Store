@@ -6,10 +6,10 @@
   <meta name="description" content="NovaCart — Smart everyday essentials delivered to your door." />
   <title>NovaCart — Smart Everyday Store</title>
 
-  <!-- Google Font: Inter (clean, modern, widely used in real products) -->
+  <!-- Display serif and humanist sans-serif give the storefront a distinct editorial voice. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="../css/navbar.css" />
@@ -76,31 +76,37 @@
   <!-- ════════════════════════════════════════════════════════
        HERO SECTION
        ════════════════════════════════════════════════════════ -->
-  <section class="hero">
+  <section class="hero" id="about">
     <div class="container hero__inner">
       <div class="hero__copy">
-        <p class="hero__eyebrow">Free delivery on orders over $50</p>
+        <p class="hero__eyebrow"><span class="hero__eyebrow-mark"></span> A little more considered</p>
         <h1 class="hero__headline">
-          Everyday essentials,<br />
-          <span>thoughtfully curated.</span>
+          Good things<br />
+          <span>for every day.</span>
         </h1>
         <p class="hero__sub">
-          From tech to lifestyle — NovaCart brings you quality products
-          at fair prices, with no noise and no clutter.
+          Useful finds for home, work and everywhere in between. Picked to make the everyday feel a little better.
         </p>
         <div class="hero__cta">
-          <a href="#products" class="btn btn--primary">Shop Now</a>
-          <a href="#categories" class="btn btn--ghost">Browse Categories</a>
+          <a href="#products" class="btn btn--primary">Explore the edit <span aria-hidden="true">↗</span></a>
+          <a href="#categories" class="hero__text-link">Find your corner <span aria-hidden="true">↓</span></a>
         </div>
+        <p class="hero__footnote"><span>18</span> thoughtful categories <i></i> <span>3,500</span> useful finds</p>
       </div>
-      <div class="hero__visual" aria-hidden="true">
-        <div class="hero__blob"></div>
-        <div class="hero__cards">
-          <div class="hero__pill hero__pill--1">🎧 Electronics</div>
-          <div class="hero__pill hero__pill--2">🏠 Home</div>
-          <div class="hero__pill hero__pill--3">🌿 Lifestyle</div>
-          <div class="hero__pill hero__pill--4">👜 Accessories</div>
-        </div>
+      <div class="hero__visual" aria-label="A few everyday finds from NovaCart">
+        <figure class="hero__photo hero__photo--large">
+          <img src="../assets/products/variants/PRD00002.jpg" alt="Borosil water bottle from the home and kitchen collection" fetchpriority="high" />
+          <figcaption><span>01 / Home &amp; kitchen</span><strong>Made for the daily ritual.</strong></figcaption>
+        </figure>
+        <figure class="hero__photo hero__photo--small hero__photo--top">
+          <img src="../assets/products/variants/PRD00001.jpg" alt="Philips table fan from the electronics collection" />
+          <figcaption>Good design, useful things</figcaption>
+        </figure>
+        <figure class="hero__photo hero__photo--small hero__photo--bottom">
+          <img src="../assets/products/variants/PRD00003.jpg" alt="Hamleys puzzle set from the toys collection" />
+          <figcaption>A little play, every day</figcaption>
+        </figure>
+        <span class="hero__index" aria-hidden="true">NC / 01</span>
       </div>
     </div>
   </section>
@@ -112,20 +118,20 @@
   <div class="trust-bar">
     <div class="container trust-bar__inner">
       <div class="trust-item">
-        <span class="trust-item__icon">🚚</span>
-        <span>Free delivery over $50</span>
+        <span class="trust-item__index">01</span>
+        <span>18 ways to find your thing</span>
       </div>
       <div class="trust-item">
-        <span class="trust-item__icon">↩️</span>
-        <span>30-day easy returns</span>
+        <span class="trust-item__index">02</span>
+        <span>Prices in Indian rupees</span>
       </div>
       <div class="trust-item">
-        <span class="trust-item__icon">🔒</span>
-        <span>Secure checkout</span>
+        <span class="trust-item__index">03</span>
+        <span>Save what catches your eye</span>
       </div>
       <div class="trust-item">
-        <span class="trust-item__icon">💬</span>
-        <span>24/7 support</span>
+        <span class="trust-item__index">04</span>
+        <span>Follow every order</span>
       </div>
     </div>
   </div>
@@ -137,8 +143,9 @@
   <section class="categories-section" id="categories">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Shop by Category</h2>
-        <p class="section-sub">Find exactly what you're looking for.</p>
+        <p class="section-kicker">THE COLLECTIONS</p>
+        <h2 class="section-title">Start with what you need.</h2>
+        <p class="section-sub">A good place to begin, wherever the day takes you.</p>
       </div>
       <div class="category-grid">
         <button class="category-card" data-filter="Electronics">
@@ -220,8 +227,9 @@
   <section class="cta-section">
     <div class="container cta-section__inner">
       <div class="cta-section__copy">
-        <h2>Sign up and get 10% off your first order.</h2>
-        <p>Join thousands of happy customers shopping smarter with NovaCart.</p>
+        <p class="cta-kicker">A GOOD THING, NOW AND THEN</p>
+        <h2>A considered little note for your inbox.</h2>
+        <p>Create an account to keep your saved finds and orders together.</p>
       </div>
       <div class="cta-section__actions">
         <a href="register.html" class="btn btn--white">Create an Account</a>
@@ -256,9 +264,7 @@
         </div>
         <div class="footer__col">
           <p class="footer__col-title">Info</p>
-          <a href="#">About Us</a>
-          <a href="#">Returns</a>
-          <a href="#">Contact</a>
+          <a href="#about">About Us</a>
         </div>
       </div>
     </div>
