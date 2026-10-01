@@ -126,12 +126,12 @@ async function ensureSchema() {
     return;
   }
 
+  sqlite.exec(fs.readFileSync(path.join(__dirname, '../models/schema.sqlite.sql'), 'utf8'));
   const columns = sqlite.prepare('PRAGMA table_info(users)').all();
   if (!columns.some(column => column.name === 'role')) sqlite.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'");
   if (!columns.some(column => column.name === 'google_sub')) sqlite.exec('ALTER TABLE users ADD COLUMN google_sub TEXT');
   if (!columns.some(column => column.name === 'avatar_url')) sqlite.exec('ALTER TABLE users ADD COLUMN avatar_url TEXT');
   sqlite.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_google_sub_key ON users (google_sub) WHERE google_sub IS NOT NULL');
-  sqlite.exec(fs.readFileSync(path.join(__dirname, '../models/schema.sqlite.sql'), 'utf8'));
   const orderColumns = new Set(sqlite.prepare('PRAGMA table_info(orders)').all().map(column => column.name));
   for (const column of ['shipping_name', 'shipping_address', 'shipping_phone']) {
     if (!orderColumns.has(column)) sqlite.exec(`ALTER TABLE orders ADD COLUMN ${column} TEXT`);

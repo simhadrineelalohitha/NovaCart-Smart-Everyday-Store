@@ -56,26 +56,34 @@ const addToCart = async (req, res) => {
     const { product_id, quantity = 1 } = req.body;
 
     if (!product_id) return res.status(400).json({ message: 'product_id is required.' });
-    const qty = parseInt(quantity, 10);
-    if (isNaN(qty) || qty < 1) return res.status(400).json({ message: 'quantity must be a positive integer.' });
+    const qty = Number(quantity);
+    if (!Number.isSafeInteger(qty) || qty < 1) return res.status(400).json({ message: 'quantity must be a positive integer.' });
 
-    const productResult = await db.query('SELECT * FROM products WHERE id = ?', [product_id]);
-    const product = productResult.rows[0];
-    if (!product) return res.status(404).json({ message: 'Product not found.' });
-    if (product.stock < qty) return res.status(400).json({ message: `Only ${product.stock} unit(s) in stock.` });
+    const cartError = await db.withTransaction(async transaction => {
+      const lock = db.isPostgres ? ' FOR UPDATE' : '';
+      const productResult = await transaction.query(`SELECT * FROM products WHERE id = ?${lock}`, [product_id]);
+      const product = productResult.rows[0];
+      if (!product) return { status: 404, message: 'Product not found.' };
 
-    // Check if already in cart — if so, increment; otherwise insert
-    const existingResult = await db.query(
-      'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ?'
-      , [req.user.id, product_id]
-    );
-    const existing = existingResult.rows[0];
+      const existingResult = await transaction.query(
+        'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ?',
+        [req.user.id, product_id]
+      );
+      const existing = existingResult.rows[0];
+      const updatedQuantity = qty + (existing?.quantity || 0);
+      if (updatedQuantity > product.stock) {
+        const available = Math.max(product.stock - (existing?.quantity || 0), 0);
+        return { status: 400, message: `Only ${available} additional unit(s) in stock.` };
+      }
 
-    if (existing) {
-      await db.query('UPDATE cart_items SET quantity = quantity + ? WHERE id = ?', [qty, existing.id]);
-    } else {
-      await db.query('INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)', [req.user.id, product_id, qty]);
-    }
+      if (existing) {
+        await transaction.query('UPDATE cart_items SET quantity = ? WHERE id = ?', [updatedQuantity, existing.id]);
+      } else {
+        await transaction.query('INSERT INTO cart_items (user_id, product_id, quantity) VALUES (?, ?, ?)', [req.user.id, product_id, qty]);
+      }
+      return null;
+    });
+    if (cartError) return res.status(cartError.status).json({ message: cartError.message });
 
     const { items, total } = await fetchCart(req.user.id);
     res.status(200).json({ success: true, data: items, total });
@@ -89,11 +97,11 @@ const addToCart = async (req, res) => {
 // :id is the cart_item id. Body: { quantity }
 const updateCartItem = async (req, res) => {
   try {
-    const cartItemId = parseInt(req.params.id, 10);
-    const quantity   = parseInt(req.body.quantity, 10);
+    const cartItemId = Number(req.params.id);
+    const quantity   = Number(req.body.quantity);
 
-    if (isNaN(cartItemId)) return res.status(400).json({ message: 'Invalid cart item ID.' });
-    if (isNaN(quantity) || quantity < 1) return res.status(400).json({ message: 'quantity must be a positive integer.' });
+    if (!Number.isSafeInteger(cartItemId) || cartItemId < 1) return res.status(400).json({ message: 'Invalid cart item ID.' });
+    if (!Number.isSafeInteger(quantity) || quantity < 1) return res.status(400).json({ message: 'quantity must be a positive integer.' });
 
     const itemResult = await db.query('SELECT * FROM cart_items WHERE id = ? AND user_id = ?', [cartItemId, req.user.id]);
     const item = itemResult.rows[0];
